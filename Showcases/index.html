@@ -258,6 +258,7 @@
       object-fit: contain;
       display: block;
       pointer-events: none;
+      image-rendering: -webkit-optimize-contrast;
     }
     .webgl-layer {
       z-index: 2;
@@ -1232,8 +1233,8 @@
             if (o.material) {
               o.material.envMapIntensity = 0.5;
 
-              // Transmissive glass
-              if (o.material.name.includes("Glass") || o.name.includes("Prism") || o.material.name.includes("Optical")) {
+              // Transmissive glass (strictly exclude plinths and mounting pedestals)
+              if ((o.material.name.includes("Glass") || o.name.includes("Hero_Diamond_Prism") || o.name.includes("Diamond") || o.material.name.includes("Optical")) && !o.name.includes("Plinth") && !o.name.includes("Collar")) {
                 o.material.transmission = 0.98;
                 o.material.ior = 1.52;
                 o.material.transparent = true;
