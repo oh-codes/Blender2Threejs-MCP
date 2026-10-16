@@ -891,15 +891,16 @@
         badge: "Mask vs Blend & Decal Anti-Z-Fighting",
         glb: "assets/foliage_lab/foliage_lab.glb",
         ref: "assets/foliage_lab/cycles_reference.png",
-        camPos: [0.0, 2.5, 6.0],
-        camTarget: [0.0, 1.0, 0.0],
-        fov: 40.0,
-        oobParity: "74.0%",
+        camPos: [0.0, 3.0, 8.5],
+        camTarget: [0.0, 1.2, 0.0],
+        fov: 29.84,
+        bgColor: 0x737a8c,
+        oobParity: "74.30%",
         mcpParity: "94.80%",
         mae: "5.20%",
         rawSize: "4.88 MB",
         optSize: "890 KB",
-        reduction: "81.8%",
+        reduction: "81.76%",
         summary: "Alpha test cutoff masking, double-sided depth sorting, custom shadow depth materials, and decal polygon offsetting.",
         bullets: [
           { cat: "Alpha Modes", text: "alphaMode MASK with calibrated alphaCutoff (0.5) preventing sorting artifacts." },
@@ -1163,6 +1164,7 @@
     function switchShowcase(k) {
       if (!SHOWCASES[k]) return;
       activeKey = k;
+      window.location.hash = k;
       const sc = SHOWCASES[k];
 
       // Update switcher active state
@@ -1192,6 +1194,9 @@
         li.innerHTML = `<span class="tbs-cat">• ${b.cat}:</span> <span>${b.text}</span>`;
         tbsList.appendChild(li);
       });
+
+      // Configure Background Color
+      scene.background = new THREE.Color(sc.bgColor !== undefined ? sc.bgColor : 0x06080e);
 
       // Configure Camera
       camera.fov = sc.fov || 45.0;
@@ -1227,17 +1232,72 @@
 
         // Apply physical material calibrations
         currentModel.traverse((o) => {
+          if (o.isLight && (o.isDirectionalLight || o.isSpotLight)) {
+            o.castShadow = true;
+            if (o.shadow) {
+              o.shadow.mapSize.width = 2048;
+              o.shadow.mapSize.height = 2048;
+              o.shadow.bias = -0.0001;
+            }
+          }
+
           if (o.isMesh) {
             o.castShadow = true;
             o.receiveShadow = true;
             if (o.material) {
               o.material.envMapIntensity = 0.5;
 
-              // Transmissive glass (strictly exclude plinths and mounting pedestals)
-              if ((o.material.name.includes("Glass") || o.name.includes("Hero_Diamond_Prism") || o.name.includes("Diamond") || o.material.name.includes("Optical")) && !o.name.includes("Plinth") && !o.name.includes("Collar")) {
+              // Solid Titanium PBR (Mystery Crate Chassis & Museum Display Plinths)
+              if (o.material.name.includes("Titanium") || o.material.name.includes("Crate_Titanium") || o.name.includes("Plinth")) {
+                o.material.transmission = 0.0;
+                o.material.transparent = false;
+                o.material.depthWrite = true;
+                o.material.metalness = 0.88;
+                o.material.roughness = 0.22;
+                o.material.color = new THREE.Color(0x282c34);
+              }
+
+              // Transmissive glass (strictly exclude plinths, collars, titanium, and alpha-blended stained glass)
+              if ((o.material.name.includes("Glass") || o.name.includes("Hero_Diamond_Prism") || o.name.includes("Diamond") || o.material.name.includes("Optical")) && !o.name.includes("Plinth") && !o.name.includes("Collar") && !o.material.name.includes("Titanium") && !o.material.name.includes("StainedGlass")) {
                 o.material.transmission = 0.98;
                 o.material.ior = 1.52;
                 o.material.transparent = true;
+              }
+
+              // Stained Glass decorative window panels (Alpha BLEND with diffuse texture, not transmissive volume)
+              if (o.material.name.includes("StainedGlass") || o.name.includes("Stained_Glass")) {
+                o.material.transmission = 0.0;
+                o.material.transparent = true;
+                o.material.depthWrite = false;
+                o.material.side = THREE.DoubleSide;
+                o.material.roughness = 0.06;
+                o.material.metalness = 0.0;
+                o.renderOrder = 3;
+              }
+
+              // Foliage Cutout Masking & Cast Shadow Perforation
+              if (o.material.name.includes("Foliage") || o.name.includes("Foliage")) {
+                o.material.alphaTest = 0.5;
+                o.material.transparent = false;
+                o.material.depthWrite = true;
+                o.material.side = THREE.DoubleSide;
+                if (o.material.map) {
+                  o.customDepthMaterial = new THREE.MeshDepthMaterial({
+                    depthPacking: THREE.RGBADepthPacking,
+                    map: o.material.map,
+                    alphaTest: 0.5
+                  });
+                }
+              }
+
+              // Surface Floor Decal (Anti Z-Fighting via PolygonOffset)
+              if (o.material.name.includes("Decal") || o.name.includes("Decal")) {
+                o.material.transparent = true;
+                o.material.depthWrite = false;
+                o.material.polygonOffset = true;
+                o.material.polygonOffsetFactor = -1.0;
+                o.material.polygonOffsetUnits = -4.0;
+                o.renderOrder = 2;
               }
 
               // Iridescent soap bubbles
@@ -1335,6 +1395,8 @@
     btnResetCam.addEventListener('click', () => {
       const sc = SHOWCASES[activeKey];
       if (!sc) return;
+      camera.fov = sc.fov || 45.0;
+      camera.updateProjectionMatrix();
       camera.position.set(...sc.camPos);
       controls.target.set(...sc.camTarget);
       controls.update();
@@ -1386,7 +1448,9 @@
     // Startup Initialization
     initThree();
     buildSwitcher();
-    switchShowcase("bender_cinematic");
+    const urlParams = new URLSearchParams(window.location.search);
+    const initialKey = urlParams.get('id') || window.location.hash.replace('#', '') || "bender_cinematic";
+    switchShowcase(SHOWCASES[initialKey] ? initialKey : "bender_cinematic");
     updateSplitPosition(50.0);
     requestAnimationFrame(animate);
 
