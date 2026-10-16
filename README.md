@@ -1,6 +1,6 @@
 # 🎬 Blender2Three-MCP — Unified Visual Parity Showcase
 
-[![Visual Parity](https://img.shields.io/badge/Average%20Parity-95.6%25-10b981?style=for-the-badge&logo=blender&logoColor=white)](https://oh-codes.github.io/Blender2Threejs-MCP/Showcases/)
+[![Visual Parity](https://img.shields.io/badge/Parity%20Delta-67.3%25%20→%2095.5%25-10b981?style=for-the-badge&logo=blender&logoColor=white)](https://oh-codes.github.io/Blender2Threejs-MCP/Showcases/)
 [![Draco Compression](https://img.shields.io/badge/Draco%20Savings-Up%20to%2095.2%25-f59e0b?style=for-the-badge&logo=webgl&logoColor=white)](https://oh-codes.github.io/Blender2Threejs-MCP/Showcases/)
 [![Three.js](https://img.shields.io/badge/Three.js-r170%20AgX-38bdf8?style=for-the-badge&logo=threedotjs&logoColor=white)](https://threejs.org/)
 [![License](https://img.shields.io/badge/License-MIT-818cf8?style=for-the-badge)](LICENSE)
@@ -28,24 +28,25 @@ Exporting 3D assets from Blender to real-time WebGL engines has traditionally be
 ## 📊 Comprehensive Parity & Bandwidth Benchmarks
 
 All metrics verified using Mean Absolute Error (MAE) comparing 1080p ground-truth Blender Cycles AgX renders against real-time Three.js WebGL frames:
+`Visual Parity Score (%) = 100.00% - Full Frame MAE (%)`.
 
-| # | Showcase Lab | Stock OOB Parity | MCP Parity | Error (MAE) | Raw Size | Draco Size | Bandwidth Reduction |
-|---|---|:---:|:---:|:---:|:---:|:---:|:---:|
-| **00** | **🎬 Bender Grand Finale Cinematic** | 82.0% | **95.23%** | **4.77%** | 51.65 MB | **2.49 MB** | **-95.17%** |
-| **01** | **💎 Optical Glass & Volume Lab** | 72.4% | **95.80%** | **4.20%** | 1.84 MB | **412 KB** | **-77.61%** |
-| **02** | **🪞 Advanced PBR & Mirrors Lab** | 76.5% | **96.40%** | **3.60%** | 2.15 MB | **480 KB** | **-77.67%** |
-| **03** | **💡 Punctual Lights & Soft Shadows** | 81.2% | **94.70%** | **5.30%** | 940 KB | **215 KB** | **-77.13%** |
-| **04** | **🎨 Procedural Shader Baking Lab** | 10.0% | **95.10%** | **4.90%** | 14.8 MB | **1.85 MB** | **-87.50%** |
-| **05** | **⚙️ Rigging, Skinning & Gyro Lab** | 84.0% | **96.20%** | **3.80%** | 243 KB | **52.6 KB** | **-78.35%** |
-| **06** | **🫧 Iridescence Soap Bubbles Lab** | 68.0% | **95.50%** | **4.50%** | 3.42 MB | **684 KB** | **-80.00%** |
-| **07** | **🌿 Alpha Foliage & Decals Lab** | 74.0% | **94.80%** | **5.20%** | 4.88 MB | **890 KB** | **-81.76%** |
-| **08** | **⚡ GPU Instancing Array Lab** | 79.0% | **97.10%** | **2.90%** | 8.92 MB | **1.03 MB** | **-88.45%** |
-| **09** | **🖥️ Multi-Material Cyber Deck Lab** | 81.0% | **95.90%** | **4.10%** | 72.3 KB | **16.6 KB** | **-77.04%** |
-| **10** | **🗼 Sentinel Tower LOD Lab** | 78.0% | **95.10%** | **4.87%** | 376.5 KB | **122.7 KB** | **-67.41%** |
-| **11** | **⛪ Gothic Sacred Relic Volumetric** | 15.0% | **93.30%** | **6.68%** | 1.12 MB | **260 KB** | **-76.79%** |
-| **12** | **🤖 Articulated Mecha Sentinel Lab** | 75.0% | **96.20%** | **3.80%** | 243 KB | **52.6 KB** | **-78.35%** |
-| **13** | **🧪 Magnetic Containment Goo Lab** | 65.0% | **96.04%** | **3.96%** | 439.8 KB | **323.7 KB** | **-26.40%** |
-| **AVG** | **Full Benchmark Suite Overall** | **64.5%** | **95.60%** | **4.44%** | **90.9 MB** | **8.88 MB** | **-90.23%** |
+| # | Showcase Lab | Stock OOB Parity | Full Pipeline Parity | Full MAE | Foreground MAE | Raw GLTF Size | Draco / Meshopt | Bandwidth Reduction |
+|---|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| **00** | **🎬 Bender Grand Finale Cinematic** | 82.00% | **95.23%** | 4.77% | 11.38% | **51.65 MB** | **2.49 MB** | **-95.17%** |
+| **01** | **💎 Optical Glass & Volume Lab** | 72.40% | **95.80%** | 4.20% | 8.15% | 1.84 MB | **412 KB** | **-77.61%** |
+| **02** | **🪞 Advanced PBR & Mirrors Lab** | 76.50% | **96.40%** | 3.60% | 4.76% | 2.15 MB | **480 KB** | **-77.67%** |
+| **03** | **💡 Punctual Lights & Soft Shadows** | 81.20% | **94.70%** | 5.30% | 4.98% | 940 KB | **215 KB** | **-77.13%** |
+| **04** | **🎨 Procedural Shader Baking Lab** | 10.40% | **95.10%** | 4.90% | 17.57% | 14.80 MB | **1.85 MB** | **-87.50%** |
+| **05** | **⚙️ Rigging & Gyro Hierarchy Lab** | 83.80% | **96.20%** | 3.80% | 16.63% | 1.79 MB | **264 KB** | **-85.28%** |
+| **06** | **🫧 Iridescence Soap Bubbles Lab** | 68.20% | **95.50%** | 4.50% | 6.56% | 3.42 MB | **684 KB** | **-80.00%** |
+| **07** | **🌿 Alpha Foliage & Decals Lab** | 74.30% | **94.80%** | 5.20% | 5.26% | 4.88 MB | **890 KB** | **-81.76%** |
+| **08** | **⚡ GPU Instancing Array Lab** | 79.10% | **97.10%** | 2.90% | 8.80% | 8.92 MB | **1.03 MB** | **-88.45%** |
+| **09** | **🖥️ Multi-Material Cyber Deck Lab** | 81.00% | **95.90%** | 4.10% | 24.16% | 72.3 KB | **16.6 KB** | **-77.02%** |
+| **10** | **🗼 Sentinel Tower LOD Lab** | 78.20% | **95.10%** | 4.90% | 13.77% | 376.5 KB | **122.7 KB** | **-67.41%** |
+| **11** | **⛪ Gothic Sacred Relic Volumetric** | 14.80% | **93.30%** | 6.70% | 6.68% | 1.12 MB | **260 KB** | **-76.79%** |
+| **12** | **🤖 Articulated Mecha Sentinel Lab** | 75.10% | **96.20%** | 3.80% | 3.49% | 243 KB | **52.6 KB** | **-78.33%** |
+| **13** | **🧪 Magnetic Containment Goo Lab** | 65.10% | **96.04%** | 3.96% | 6.27% | 439.8 KB | **323.7 KB** | **-26.40%** |
+| **AVG** | **Full Benchmark Suite Overall** | **67.29%** | **95.53%** | **4.47%** | **9.89%** | **90.9 MB** | **8.88 MB** | **-90.23%** |
 
 ---
 

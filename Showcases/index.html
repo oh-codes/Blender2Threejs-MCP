@@ -582,7 +582,7 @@
       Automated pipeline translating complex Blender Cycles scenes into high-performance Three.js WebGL with sub-pixel visual parity, AgX tone mapping, and Draco geometry compression.
     </p>
     <div class="global-badges">
-      <span class="pill pill-green">Average Visual Parity: 95.6%</span>
+      <span class="pill pill-green">Parity Delta: 67.3% → 95.5%</span>
       <span class="pill pill-gold">Draco Compression: Up to 95.2%</span>
       <span class="pill">Blender Cycles AgX vs WebGL 60FPS</span>
       <span class="pill">14 Standalone Benchmark Labs</span>
@@ -821,12 +821,12 @@
         camPos: [0.0, 2.4, 5.5],
         camTarget: [0.0, 1.0, 0.0],
         fov: 40.0,
-        oobParity: "10.0%",
+        oobParity: "10.40%",
         mcpParity: "95.10%",
         mae: "4.90%",
-        rawSize: "14.8 MB",
+        rawSize: "14.80 MB",
         optSize: "1.85 MB",
-        reduction: "87.5%",
+        reduction: "87.50%",
         summary: "Bakes procedural Voronoi, Noise, and Musgrave nodes into channel-packed ORM PBR maps and tangent normal maps.",
         bullets: [
           { cat: "Baking", text: "Automated headless 4-pass Cycles bake (BaseColor, Roughness, Metallic, Normal)." },
@@ -844,12 +844,12 @@
         camPos: [0.0, 2.6, 6.0],
         camTarget: [0.0, 1.2, 0.0],
         fov: 42.0,
-        oobParity: "84.0%",
+        oobParity: "83.80%",
         mcpParity: "96.20%",
         mae: "3.80%",
-        rawSize: "243 KB",
-        optSize: "52.6 KB",
-        reduction: "78.3%",
+        rawSize: "1.79 MB",
+        optSize: "264 KB",
+        reduction: "85.28%",
         summary: "Multi-bone armature skinning, glTF shape key morph targets, and nested multi-axis gyro rotational hierarchies.",
         bullets: [
           { cat: "Skinning", text: "Linear blend skinning with normalized vertex group weights and bone transform matrices." },
@@ -962,12 +962,12 @@
         camPos: [0.0, 2.5, 6.8],
         camTarget: [0.0, 1.4, 0.0],
         fov: 40.0,
-        oobParity: "78.0%",
+        oobParity: "78.20%",
         mcpParity: "95.10%",
-        mae: "4.87%",
+        mae: "4.90%",
         rawSize: "376.5 KB",
         optSize: "122.7 KB",
-        reduction: "67.4%",
+        reduction: "67.41%",
         summary: "3-tier distance LOD hierarchy (11.1k → 2.7k → 538 tris) with EXT_meshopt_compression and automatic runtime switching.",
         bullets: [
           { cat: "LOD Levels", text: "Seamless distance thresholds (0m → 10m → 20m) with automatic triangle decimation." },
@@ -985,12 +985,12 @@
         camPos: [0.0, 2.6, 6.5],
         camTarget: [0.0, 1.2, 0.0],
         fov: 42.0,
-        oobParity: "15.0%",
+        oobParity: "14.80%",
         mcpParity: "93.30%",
-        mae: "6.68%",
+        mae: "6.70%",
         rawSize: "1.12 MB",
         optSize: "260 KB",
-        reduction: "76.8%",
+        reduction: "76.79%",
         summary: "48-step screen-space raymarching volume with Henyey-Greenstein Mie scattering and analytical window mullion shadow slicing.",
         bullets: [
           { cat: "Raymarching", text: "48-step volumetric box raymarcher with screen-space dither noise preventing color banding." },
@@ -1008,12 +1008,12 @@
         camPos: [0.0, 2.2, 5.0],
         camTarget: [0.0, 1.2, 0.0],
         fov: 40.0,
-        oobParity: "75.0%",
+        oobParity: "75.10%",
         mcpParity: "96.20%",
         mae: "3.80%",
         rawSize: "243 KB",
         optSize: "52.6 KB",
-        reduction: "78.3%",
+        reduction: "78.33%",
         summary: "Rigged bipedal combatant with 100% rigid component bone weighting and actionsMap crossfading preventing superposition bleeding.",
         bullets: [
           { cat: "Rigid Weighting", text: "Pre-assigned 100% bone weights to component plates, preventing head visor ripping and vertex bleeding." },
@@ -1034,12 +1034,12 @@
         camPos: [0.0, 2.2, 5.2],
         camTarget: [0.0, 1.1, 0.0],
         fov: 38.0,
-        oobParity: "65.0%",
+        oobParity: "65.10%",
         mcpParity: "96.04%",
         mae: "3.96%",
         rawSize: "439.8 KB",
         optSize: "323.7 KB",
-        reduction: "26.4%",
+        reduction: "26.40%",
         summary: "Physical hollow open-tube containment shield, 4-key morph target delta retention, and radiant bioluminescent core.",
         bullets: [
           { cat: "Morph Targets", text: "4 concurrent morph target delta streams (Squash, Stretch, Wobble1, Wobble2) preserved across Draco." },
