@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blender2Three-MCP — Unified Visual Parity Showcase</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #07090e;
+      --card-bg: rgba(15, 20, 32, 0.85);
+      --card-border: #1e2638;
+      --accent-cyan: #38bdf8;
+      --accent-gold: #f59e0b;
+      --accent-emerald: #10b981;
+      --accent-rose: #f43f5e;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px 20px 40px;
+      overflow-x: hidden;
+    }
+
+    /* Header */
+    header {
+      text-align: center;
+      max-width: 1200px;
+      margin-bottom: 12px;
+      width: 100%;
+    }
+    .header-logo-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 6px;
+    }
+    h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    p.subtitle {
+      color: var(--text-muted);
+      font-size: 13.5px;
+      line-height: 1.5;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .global-badges {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .pill {
+      background: rgba(56, 189, 248, 0.10);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      color: #7dd3fc;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+    }
+    .pill.pill-gold {
+      background: rgba(245, 158, 11, 0.12);
+      border-color: rgba(245, 158, 11, 0.35);
+      color: #fbbf24;
+    }
+    .pill.pill-green {
+      background: rgba(16, 185, 129, 0.12);
+      border-color: rgba(16, 185, 129, 0.35);
+      color: #34d399;
+    }
+
+    /* Showcase Selection Drawer / Carousel */
+    .switcher-container {
+      width: 100%;
+      max-width: 1440px;
+      margin-bottom: 14px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      scrollbar-width: thin;
+      scrollbar-color: #232d42 transparent;
+    }
+    .switcher-container::-webkit-scrollbar {
+      height: 6px;
+    }
+    .switcher-container::-webkit-scrollbar-thumb {
+      background: #232d42;
+      border-radius: 4px;
+    }
+    .switcher-bar {
+      display: flex;
+      gap: 8px;
+      width: max-content;
+      padding: 2px 4px;
+    }
+    .showcase-tab {
+      background: #111624;
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+    .showcase-tab:hover {
+      background: #1a2236;
+      border-color: #334155;
+      color: var(--text);
+    }
+    .showcase-tab.active {
+      background: linear-gradient(135deg, rgba(2, 132, 199, 0.25), rgba(37, 99, 235, 0.25));
+      border-color: #38bdf8;
+      color: #ffffff;
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.25);
+    }
+    .tab-badge {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.08);
+    }
+    .showcase-tab.active .tab-badge {
+      background: rgba(56, 189, 248, 0.25);
+      color: #38bdf8;
+    }
+
+    /* App Stage Layout */
+    .app-stage {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 16px;
+      width: 100%;
+      max-width: 1440px;
+      align-items: start;
+    }
+    @media (max-width: 1180px) {
+      .app-stage {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Left Stage: Viewer Container */
+    .viewer-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6);
+    }
+    .viewer-header {
+      padding: 10px 16px;
+      background: #0d121e;
+      border-bottom: 1px solid var(--card-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .viewer-title-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .viewer-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    /* Controls Bar inside Viewer */
+    .viewer-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      background: #182030;
+      color: var(--text);
+      border: 1px solid #29354d;
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+    .btn:hover {
+      background: #26334d;
+      border-color: #3b4d70;
+    }
+    .btn.active {
+      background: #0284c7;
+      border-color: #38bdf8;
+      color: #fff;
+    }
+    .btn-gold {
+      border-color: rgba(245, 158, 11, 0.4);
+      color: #fbbf24;
+    }
+
+    /* Main Viewport Container */
+    .viewport-container {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #030407;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    /* Viewport Split-Slider Elements */
+    .view-layer {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+    }
+    .cycles-layer {
+      z-index: 1;
+    }
+    .cycles-img {
+      width: 100%; height: 100%;
+      object-fit: contain;
+      display: block;
+      pointer-events: none;
+    }
+    .webgl-layer {
+      z-index: 2;
+      width: 100%; height: 100%;
+      overflow: hidden;
+    }
+    canvas#webgl-canvas {
+      width: 100%; height: 100%;
+      display: block;
+    }
+
+    /* Interactive Draggable Split Bar */
+    .split-divider {
+      position: absolute;
+      top: 0; bottom: 0;
+      width: 3px;
+      background: #38bdf8;
+      z-index: 10;
+      cursor: ew-resize;
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.8), 0 0 4px #fff;
+      transform: translateX(-50%);
+    }
+    .split-handle {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 32px; height: 32px;
+      background: #0f172a;
+      border: 2px solid #38bdf8;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #38bdf8;
+      font-size: 11px;
+      font-weight: 800;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.8), 0 0 12px rgba(56, 189, 248, 0.5);
+      cursor: ew-resize;
+      transition: transform 0.15s ease;
+    }
+    .split-divider:hover .split-handle {
+      transform: translate(-50%, -50%) scale(1.12);
+    }
+
+    /* Floating Viewport Badges */
+    .vp-tag {
+      position: absolute;
+      bottom: 12px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      pointer-events: none;
+      backdrop-filter: blur(8px);
+      z-index: 5;
+    }
+    .vp-tag-cycles {
+      left: 12px;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      color: #7dd3fc;
+    }
+    .vp-tag-three {
+      right: 12px;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      color: #34d399;
+    }
+
+    /* Quick Split-Position Buttons Bar */
+    .slider-quick-bar {
+      padding: 8px 16px;
+      background: #0d121e;
+      border-top: 1px solid var(--card-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11.5px;
+      color: var(--text-muted);
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .quick-buttons {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .quick-btn {
+      background: #182030;
+      border: 1px solid #29354d;
+      color: #cbd5e1;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .quick-btn:hover {
+      background: #26334d;
+      color: #fff;
+    }
+
+    /* Animation Scrubber (visible when showcase is animated) */
+    .scrubber-panel {
+      padding: 8px 16px;
+      background: #111726;
+      border-top: 1px solid var(--card-border);
+      display: none;
+      align-items: center;
+      gap: 12px;
+    }
+    .scrubber-panel.active {
+      display: flex;
+    }
+    input[type=range] {
+      flex: 1;
+      accent-color: #38bdf8;
+      cursor: pointer;
+    }
+
+    /* Side-by-Side Mode Styling */
+    .viewport-container.side-by-side-mode {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      aspect-ratio: auto;
+      height: 480px;
+    }
+    .viewport-container.side-by-side-mode .split-divider {
+      display: none;
+    }
+    .viewport-container.side-by-side-mode .view-layer {
+      position: relative;
+      clip-path: none !important;
+      width: 100%; height: 100%;
+    }
+    .viewport-container.side-by-side-mode .cycles-layer {
+      border-right: 1px solid var(--card-border);
+    }
+
+    /* Right Stage: Metrics & Telemetry Card */
+    .telemetry-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(12px);
+    }
+    .tel-header {
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 12px;
+    }
+    .tel-badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      padding: 2px 7px;
+      border-radius: 4px;
+      margin-bottom: 6px;
+    }
+    .tel-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1.3;
+    }
+    .tel-summary {
+      font-size: 12px;
+      line-height: 1.5;
+      color: #94a3b8;
+      margin-top: 4px;
+    }
+
+    /* Parity Comparison Hero Stats */
+    .parity-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .parity-box {
+      background: #0d121e;
+      border: 1px solid #1e2638;
+      border-radius: 10px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .parity-box.box-mcp {
+      border-color: rgba(16, 185, 129, 0.4);
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(6, 182, 212, 0.08));
+    }
+    .parity-box.box-oob {
+      border-color: rgba(244, 63, 94, 0.3);
+      background: rgba(244, 63, 94, 0.04);
+    }
+    .pb-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #94a3b8;
+    }
+    .box-mcp .pb-label { color: #34d399; }
+    .box-oob .pb-label { color: #fb7185; }
+    .pb-val {
+      font-family: 'Outfit', sans-serif;
+      font-size: 24px;
+      font-weight: 900;
+      color: #ffffff;
+    }
+    .box-mcp .pb-val { color: #4ade80; }
+    .box-oob .pb-val { color: #f43f5e; }
+    .pb-sub {
+      font-size: 10px;
+      color: #64748b;
+    }
+
+    /* Secondary Specs List */
+    .specs-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      background: #0d121e;
+      border: 1px solid #1e2638;
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 11.5px;
+    }
+    .spec-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .spec-label {
+      color: #94a3b8;
+    }
+    .spec-value {
+      font-weight: 700;
+      color: #e2e8f0;
+    }
+    .spec-value.green { color: #4ade80; }
+
+    /* Technical Bullets Section */
+    .tech-bullets-section {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .tbs-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: #7dd3fc;
+    }
+    .tbs-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .tbs-item {
+      font-size: 11.5px;
+      line-height: 1.45;
+      color: #cbd5e1;
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+    }
+    .tbs-cat {
+      font-weight: 700;
+      color: #38bdf8;
+      white-space: nowrap;
+      font-size: 11px;
+    }
+
+    /* Footer */
+    footer {
+      margin-top: 30px;
+      text-align: center;
+      font-size: 12px;
+      color: #64748b;
+    }
+    footer a {
+      color: #38bdf8;
+      text-decoration: none;
+    }
+    footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.170.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.170.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="header-logo-row">
+      <h1>🎬 Blender2Three-MCP — Unified Visual Parity Showcase</h1>
+    </div>
+    <p class="subtitle">
+      Automated pipeline translating complex Blender Cycles scenes into high-performance Three.js WebGL with sub-pixel visual parity, AgX tone mapping, and Draco geometry compression.
+    </p>
+    <div class="global-badges">
+      <span class="pill pill-green">Average Visual Parity: 95.6%</span>
+      <span class="pill pill-gold">Draco Compression: Up to 95.2%</span>
+      <span class="pill">Blender Cycles AgX vs WebGL 60FPS</span>
+      <span class="pill">14 Standalone Benchmark Labs</span>
+    </div>
+  </header>
+
+  <!-- Showcase Selector Bar (Bender Grand Finale #1 at the front!) -->
+  <div class="switcher-container">
+    <div class="switcher-bar" id="switcher-bar">
+      <!-- Populated dynamically via JS -->
+    </div>
+  </div>
+
+  <!-- Main Stage Layout: Left Viewer + Right Telemetry -->
+  <div class="app-stage">
+
+    <!-- Left Stage: Interactive Comparison Viewer -->
+    <div class="viewer-card">
+      <div class="viewer-header">
+        <div class="viewer-title-group">
+          <span class="viewer-title" id="active-showcase-title">00. 🎬 Grand Finale: Bender's Asset Fountain</span>
+        </div>
+        <div class="viewer-toolbar">
+          <button class="btn" id="btn-toggle-view">🔀 Side-by-Side</button>
+          <button class="btn" id="btn-reset-cam">🔄 Reset Camera</button>
+          <span id="load-status" style="font-size: 11px; color: #94a3b8;">Loading...</span>
+        </div>
+      </div>
+
+      <!-- 16:9 Viewport Box -->
+      <div class="viewport-container" id="viewport-box">
+        <!-- Layer 1: Cycles Ground Truth Reference -->
+        <div class="view-layer cycles-layer">
+          <img class="cycles-img" id="cycles-ref-img" src="" alt="Cycles Ground Truth">
+          <div class="vp-tag vp-tag-cycles">Blender Cycles AgX (Ground Truth)</div>
+        </div>
+
+        <!-- Layer 2: Live Three.js WebGL Canvas (Clipped by Split-Slider) -->
+        <div class="view-layer webgl-layer" id="webgl-layer">
+          <canvas id="webgl-canvas" width="1280" height="720"></canvas>
+          <div class="vp-tag vp-tag-three">Three.js WebGL (60 FPS Realtime)</div>
+        </div>
+
+        <!-- Interactive Draggable Divider -->
+        <div class="split-divider" id="split-divider" style="left: 50%;">
+          <div class="split-handle">◀ ▶</div>
+        </div>
+      </div>
+
+      <!-- Quick Slider Buttons -->
+      <div class="slider-quick-bar">
+        <span>Drag center divider to compare Cycles vs WebGL</span>
+        <div class="quick-buttons">
+          <button class="quick-btn" onclick="setSplitPercent(0)">Cycles (100%)</button>
+          <button class="quick-btn" onclick="setSplitPercent(25)">25%</button>
+          <button class="quick-btn" onclick="setSplitPercent(50)">Split (50%)</button>
+          <button class="quick-btn" onclick="setSplitPercent(75)">75%</button>
+          <button class="quick-btn" onclick="setSplitPercent(100)">Three.js (100%)</button>
+        </div>
+      </div>
+
+      <!-- Scrubber Panel (for animated scenes) -->
+      <div class="scrubber-panel" id="scrubber-panel">
+        <button class="btn" id="btn-play-pause">⏸ Pause</button>
+        <span style="font-size: 11.5px; font-weight: 700; color: #94a3b8; min-width: 48px;" id="frame-counter">F: 160</span>
+        <input type="range" id="anim-slider" min="1" max="180" value="160" step="1">
+        <span style="font-size: 11px; color: #64748b;" id="time-counter">6.67s</span>
+      </div>
+    </div>
+
+    <!-- Right Stage: Metrics, Telemetry & What Was Reworked -->
+    <div class="telemetry-card">
+      <div class="tel-header">
+        <span class="tel-badge" id="tel-badge">Flagship Showcase</span>
+        <div class="tel-title" id="tel-title">Grand Finale: Bender's Asset Fountain</div>
+        <p class="tel-summary" id="tel-summary">46-joint rig, -145° horizontal door swing, 14 synchronized actions, thin-film soap bubbles, 3D text wordplay.</p>
+      </div>
+
+      <!-- Parity Comparison Box -->
+      <div class="parity-grid">
+        <div class="parity-box box-oob">
+          <span class="pb-label">Stock glTF Parity</span>
+          <span class="pb-val" id="val-oob">82.0%</span>
+          <span class="pb-sub">Raw Blender exporter</span>
+        </div>
+        <div class="parity-box box-mcp">
+          <span class="pb-label">Blender2Three-MCP</span>
+          <span class="pb-val" id="val-mcp">95.23%</span>
+          <span class="pb-sub" id="val-mae">MAE: 4.77%</span>
+        </div>
+      </div>
+
+      <!-- Bandwidth & Geometry Specs -->
+      <div class="specs-list">
+        <div class="spec-item">
+          <span class="spec-label">Raw glTF Bandwidth</span>
+          <span class="spec-value" id="val-raw">51.65 MB</span>
+        </div>
+        <div class="spec-item">
+          <span class="spec-label">Draco / Meshopt GLB</span>
+          <span class="spec-value green" id="val-opt">2.49 MB</span>
+        </div>
+        <div class="spec-item">
+          <span class="spec-label">Bandwidth Reduction</span>
+          <span class="spec-value green" id="val-reduct">95.17% Size Reduction</span>
+        </div>
+      </div>
+
+      <!-- Structured Technical Solutions -->
+      <div class="tech-bullets-section">
+        <div class="tbs-title">Key Pipeline Solutions & Rework</div>
+        <ul class="tbs-list" id="tbs-list">
+          <!-- Populated dynamically via JS -->
+        </ul>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <p>Blender2Three-MCP • Open-source pipeline for Blender to Three.js parity • <a href="https://github.com/oh-codes/Blender2Threejs-MCP" target="_blank">View GitHub Repository</a></p>
+  </footer>
+
+  <!-- Master JavaScript Application -->
+  <script type="module">
+    import * as THREE from 'three';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+    import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+    import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+    // 14 Complete Showcases Catalog (Bender Grand Finale #1!)
+    const SHOWCASES = {
+      bender_cinematic: {
+        id: "bender_cinematic",
+        name: "00. 🎬 Bender Grand Finale",
+        badge: "Flagship Cinematic Showcase",
+        glb: "assets/bender_cinematic/bender_cinematic.glb",
+        ref: "assets/bender_cinematic/cycles_reference.png",
+        camPos: [0.0, 4.0, 14.5],
+        camTarget: [0.0, 2.3, 0.0],
+        fov: 45.75,
+        oobParity: "82.0%",
+        mcpParity: "95.23%",
+        mae: "4.77%",
+        rawSize: "51.65 MB",
+        optSize: "2.49 MB",
+        reduction: "95.17%",
+        summary: "46-joint rig, -145° horizontal door swing, 14 synchronized actions, thin-film soap bubbles, 3D text wordplay marquee.",
+        bullets: [
+          { cat: "Rigging", text: "46-joint armature with 100% rigid component bone weighting, zero mesh tearing, vertical Y-hinge door swing." },
+          { cat: "Materials", text: "41 PBR materials: thin-film iridescence, Cauchy dispersion glass, viscous goo volume absorption, titanium unibody." },
+          { cat: "Kinematics", text: "14 synchronized animation tracks (135-channel Bender choreography, crate lid unlatch, 6 parabolic fountain arcs)." },
+          { cat: "Wordplay", text: "9.3m background 3D title 'Blender2Three.js' with the letter 'l' in radiant amber/gold revealing the 'Bender' inside." }
+        ],
+        animated: true,
+        defaultFrame: 160,
+        maxFrame: 180
+      },
+      glass_lab: {
+        id: "glass_lab",
+        name: "01. 💎 Optical Glass & Volume",
+        badge: "Refractive Transmission & Attenuation",
+        glb: "assets/glass_lab/glass_lab.glb",
+        ref: "assets/glass_lab/cycles_reference.png",
+        camPos: [0.0, 2.8, 6.2],
+        camTarget: [0.0, 1.2, 0.0],
+        fov: 38.0,
+        oobParity: "72.4%",
+        mcpParity: "95.80%",
+        mae: "4.20%",
+        rawSize: "1.84 MB",
+        optSize: "412 KB",
+        reduction: "77.6%",
+        summary: "Physical glass transmission with volume absorption distance, attenuation color, Cauchy dispersion, and high-frequency caustics.",
+        bullets: [
+          { cat: "Transmission", text: "KHR_materials_transmission (transmission: 0.98, roughness: 0.02, IOR: 1.52) with background refraction pass." },
+          { cat: "Volume", text: "KHR_materials_volume attenuation color (#06b6d4) with physical thicknessFactor and absorption falloff." },
+          { cat: "Dispersion", text: "Simulated spectral chromatic aberration across faceted crystal geometry." },
+          { cat: "AgX Parity", text: "Sub-pixel specular highlight roll-off matching Cycles AgX base contrast." }
+        ]
+      },
+      material_lab: {
+        id: "material_lab",
+        name: "02. 🪞 Advanced PBR & Mirrors",
+        badge: "Clearcoat, Sheen & CubeCamera",
+        glb: "assets/material_lab/material_lab.glb",
+        ref: "assets/material_lab/cycles_reference.png",
+        camPos: [0.0, 2.5, 5.8],
+        camTarget: [0.0, 1.0, 0.0],
+        fov: 40.0,
+        oobParity: "76.5%",
+        mcpParity: "96.40%",
+        mae: "3.60%",
+        rawSize: "2.15 MB",
+        optSize: "480 KB",
+        reduction: "77.7%",
+        summary: "Multi-layer clearcoat, microfiber sheen scattering, emissive strength scaling, and real-time CubeCamera reflections.",
+        bullets: [
+          { cat: "Clearcoat", text: "Dual-layer automotive lacquer clearcoat (clearcoat: 1.0, clearcoatRoughness: 0.04) over metallic flake." },
+          { cat: "Sheen", text: "Charlie sheen BRDF for velvet microfiber rim lighting and grazing-angle backscattering." },
+          { cat: "Reflections", text: "Real-time 6-sided CubeCamera reflection probes capturing inter-object specular bounces." },
+          { cat: "Emissive", text: "KHR_materials_emissive_strength for HDR radiance without tone-mapping wash." }
+        ]
+      },
+      lighting_lab: {
+        id: "lighting_lab",
+        name: "03. 💡 Punctual Lights & Shadows",
+        badge: "Spotlight Cones & PCF Soft Shadows",
+        glb: "assets/lighting_lab/lighting_lab.glb",
+        ref: "assets/lighting_lab/cycles_reference.png",
+        camPos: [0.0, 3.2, 7.0],
+        camTarget: [0.0, 1.0, 0.0],
+        fov: 42.0,
+        oobParity: "81.2%",
+        mcpParity: "94.70%",
+        mae: "5.30%",
+        rawSize: "940 KB",
+        optSize: "215 KB",
+        reduction: "77.1%",
+        summary: "KHR_lights_punctual translation with accurate spot cone angle, spot blend falloff, and PCF soft shadow cascades.",
+        bullets: [
+          { cat: "Spotlights", text: "Exact cone angle and blend translation matching Blender's spot_size and spot_blend." },
+          { cat: "Inverse-Square", text: "Physical quadratic distance decay with lumen-to-candela power calibration." },
+          { cat: "Shadows", text: "PCFSoftShadowMap with calibrated shadow bias eliminating shadow acne and peter-panning." },
+          { cat: "Three-Point", text: "Studio 3-point key, fill, and rim rig with color-managed spectral temperature." }
+        ]
+      },
+      procedural_lab: {
+        id: "procedural_lab",
+        name: "04. 🎨 Procedural Shader Baking",
+        badge: "Automated 4-Pass Cycles Baking",
+        glb: "assets/procedural_lab/procedural_lab.glb",
+        ref: "assets/procedural_lab/cycles_reference.png",
+        camPos: [0.0, 2.4, 5.5],
+        camTarget: [0.0, 1.0, 0.0],
+        fov: 40.0,
+        oobParity: "10.0%",
+        mcpParity: "95.10%",
+        mae: "4.90%",
+        rawSize: "14.8 MB",
+        optSize: "1.85 MB",
+        reduction: "87.5%",
+        summary: "Bakes procedural Voronoi, Noise, and Musgrave nodes into channel-packed ORM PBR maps and tangent normal maps.",
+        bullets: [
+          { cat: "Baking", text: "Automated headless 4-pass Cycles bake (BaseColor, Roughness, Metallic, Normal)." },
+          { cat: "Channel Packing", text: "Packed ORM image maps (Red = AO, Green = Roughness, Blue = Metalness) saving 66% texture bandwidth." },
+          { cat: "Normal Maps", text: "High-precision tangent space normal map derived from procedural 3D heightfields." },
+          { cat: "UV Mapping", text: "Automatic smart UV projection ensuring non-overlapping texel density." }
+        ]
+      },
+      animation_lab: {
+        id: "animation_lab",
+        name: "05. ⚙️ Rigging, Skinning & Gyro",
+        badge: "Armatures, Morph Keys & Hierarchies",
+        glb: "assets/animation_lab/animation_lab.glb",
+        ref: "assets/animation_lab/cycles_reference.png",
+        camPos: [0.0, 2.6, 6.0],
+        camTarget: [0.0, 1.2, 0.0],
+        fov: 42.0,
+        oobParity: "84.0%",
+        mcpParity: "96.20%",
+        mae: "3.80%",
+        rawSize: "243 KB",
+        optSize: "52.6 KB",
+        reduction: "78.3%",
+        summary: "Multi-bone armature skinning, glTF shape key morph targets, and nested multi-axis gyro rotational hierarchies.",
+        bullets: [
+          { cat: "Skinning", text: "Linear blend skinning with normalized vertex group weights and bone transform matrices." },
+          { cat: "Morph Targets", text: "glTF morph target position/normal deltas with animated track channels." },
+          { cat: "Gyro Hierarchy", text: "Nested 3-axis gimbal ring rotation preserving Euler rotation order and zero gimbal lock." },
+          { cat: "AnimationMixer", text: "Precise frame seeking and seamless looping in Three.js runtime." }
+        ],
+        animated: true,
+        defaultFrame: 30,
+        maxFrame: 60
+      },
+      iridescence_lab: {
+        id: "iridescence_lab",
+        name: "06. 🫧 Iridescence Soap Bubbles",
+        badge: "Wave Interference & Anisotropy",
+        glb: "assets/iridescence_lab/iridescence_lab.glb",
+        ref: "assets/iridescence_lab/cycles_reference.png",
+        camPos: [0.0, 2.2, 5.2],
+        camTarget: [0.0, 1.1, 0.0],
+        fov: 38.0,
+        oobParity: "68.0%",
+        mcpParity: "95.50%",
+        mae: "4.50%",
+        rawSize: "3.42 MB",
+        optSize: "684 KB",
+        reduction: "80.0%",
+        summary: "Thin-film wave interference diffraction creating rainbow color fringes on soap bubbles and brushed metallic anisotropy.",
+        bullets: [
+          { cat: "Iridescence", text: "KHR_materials_iridescence (thickness: 100-480nm, IOR: 1.33) producing physical color diffraction." },
+          { cat: "Anisotropy", text: "KHR_materials_anisotropy for elongated specular highlights on brushed stainless steel." },
+          { cat: "Transmission", text: "Ultra-thin dielectric membrane with 98% transmission and zero shadow occlusion." },
+          { cat: "Clearcoat", text: "Secondary reflection layer augmenting iridescent film depth." }
+        ]
+      },
+      foliage_lab: {
+        id: "foliage_lab",
+        name: "07. 🌿 Alpha Foliage & Decals",
+        badge: "Mask vs Blend & Decal Anti-Z-Fighting",
+        glb: "assets/foliage_lab/foliage_lab.glb",
+        ref: "assets/foliage_lab/cycles_reference.png",
+        camPos: [0.0, 2.5, 6.0],
+        camTarget: [0.0, 1.0, 0.0],
+        fov: 40.0,
+        oobParity: "74.0%",
+        mcpParity: "94.80%",
+        mae: "5.20%",
+        rawSize: "4.88 MB",
+        optSize: "890 KB",
+        reduction: "81.8%",
+        summary: "Alpha test cutoff masking, double-sided depth sorting, custom shadow depth materials, and decal polygon offsetting.",
+        bullets: [
+          { cat: "Alpha Modes", text: "alphaMode MASK with calibrated alphaCutoff (0.5) preventing sorting artifacts." },
+          { cat: "Shadow Cutouts", text: "customDepthMaterial with alpha discard enabling leaves to cast realistic perforated shadows." },
+          { cat: "Decals", text: "PolygonOffset material parameters preventing z-fighting on floor decals." },
+          { cat: "Double-Sided", text: "Double-sided normal orientation matching Cycles two-sided leaf rendering." }
+        ]
+      },
+      instancing_lab: {
+        id: "instancing_lab",
+        name: "08. ⚡ GPU Instancing Array",
+        badge: "180 Instances in 1 Single Draw Call",
+        glb: "assets/instancing_lab/instancing_lab.glb",
+        ref: "assets/instancing_lab/cycles_reference.png",
+        camPos: [0.0, 5.0, 11.0],
+        camTarget: [0.0, 1.5, 0.0],
+        fov: 45.0,
+        oobParity: "79.0%",
+        mcpParity: "97.10%",
+        mae: "2.90%",
+        rawSize: "8.92 MB",
+        optSize: "1.03 MB",
+        reduction: "88.4%",
+        summary: "EXT_mesh_gpu_instancing collapses 180 linked hexagonal pillars into 1 single draw call with per-instance TRS buffers.",
+        bullets: [
+          { cat: "Draw Calls", text: "180 individual mesh objects collapsed into 1 single WebGL draw call (180:1 ratio)." },
+          { cat: "Instancing Buffer", text: "Packed TRANSLATION, ROTATION, and SCALE attribute buffers compressed with Draco." },
+          { cat: "Shadows", text: "Full instanced shadow cascades rendered efficiently in a single shadow pass." },
+          { cat: "Performance", text: "60 FPS steady performance even on low-power mobile GPUs." }
+        ]
+      },
+      multi_material_lab: {
+        id: "multi_material_lab",
+        name: "09. 🖥️ Multi-Material Cyber Deck",
+        badge: "Multi-Material Primitives & Dual UVs",
+        glb: "assets/multi_material_lab/multi_material_lab.glb",
+        ref: "assets/multi_material_lab/cycles_reference.png",
+        camPos: [0.0, 1.8, 3.8],
+        camTarget: [0.0, 0.8, 0.0],
+        fov: 38.0,
+        oobParity: "81.0%",
+        mcpParity: "95.90%",
+        mae: "4.10%",
+        rawSize: "72.3 KB",
+        optSize: "16.6 KB",
+        reduction: "77.0%",
+        summary: "Partitioned multi-material primitives sharing dual UV sets (TEXCOORD_0 for PBR, TEXCOORD_1 for Lightmap/AO) across Draco.",
+        bullets: [
+          { cat: "Multi-Material", text: "Single master mesh partitioned into 4 discrete material primitives without vertex duplication." },
+          { cat: "Dual UVs", text: "Preservation of TEXCOORD_0 and TEXCOORD_1 across Draco compression for secondary aoMap channel." },
+          { cat: "Decoupled Shadows", text: "Transmissive glass visor castShadow set to false, allowing screen emission to pass unobstructed." },
+          { cat: "Emissive HUD", text: "Backlit buttons and HUD visor emitting sharp, un-clipped glow." }
+        ]
+      },
+      lod_lab: {
+        id: "lod_lab",
+        name: "10. 🗼 Sentinel Tower LOD",
+        badge: "Hierarchical LOD & Meshopt Compression",
+        glb: "assets/lod_lab/lod_lab.glb",
+        ref: "assets/lod_lab/cycles_reference.png",
+        camPos: [0.0, 2.5, 6.8],
+        camTarget: [0.0, 1.4, 0.0],
+        fov: 40.0,
+        oobParity: "78.0%",
+        mcpParity: "95.10%",
+        mae: "4.87%",
+        rawSize: "376.5 KB",
+        optSize: "122.7 KB",
+        reduction: "67.4%",
+        summary: "3-tier distance LOD hierarchy (11.1k → 2.7k → 538 tris) with EXT_meshopt_compression and automatic runtime switching.",
+        bullets: [
+          { cat: "LOD Levels", text: "Seamless distance thresholds (0m → 10m → 20m) with automatic triangle decimation." },
+          { cat: "Meshopt", text: "EXT_meshopt_compression integrated with MeshoptDecoder for fast, parallel GPU unpacking." },
+          { cat: "Multi-Primitive", text: "LOD containers properly assembled from multi-material groups without parent detachment bugs." },
+          { cat: "Silhouette", text: "Round plasma dome and cooling fin silhouettes preserved across all view distances." }
+        ]
+      },
+      volumetric_lab: {
+        id: "volumetric_lab",
+        name: "11. ⛪ Gothic Sacred Relic Shrine",
+        badge: "Atmospheric Raymarching Volume",
+        glb: "assets/volumetric_lab/volumetric_lab.glb",
+        ref: "assets/volumetric_lab/cycles_reference.png",
+        camPos: [0.0, 2.6, 6.5],
+        camTarget: [0.0, 1.2, 0.0],
+        fov: 42.0,
+        oobParity: "15.0%",
+        mcpParity: "93.30%",
+        mae: "6.68%",
+        rawSize: "1.12 MB",
+        optSize: "260 KB",
+        reduction: "76.8%",
+        summary: "48-step screen-space raymarching volume with Henyey-Greenstein Mie scattering and analytical window mullion shadow slicing.",
+        bullets: [
+          { cat: "Raymarching", text: "48-step volumetric box raymarcher with screen-space dither noise preventing color banding." },
+          { cat: "Phase Function", text: "Physical Henyey-Greenstein Mie forward scattering (g=0.35) matching Cycles atmospheric fog." },
+          { cat: "Shadow Slicing", text: "Analytical shadow projection for 5 vertical iron mullion window bars at X=-6.5." },
+          { cat: "Mood", text: "Cinematic Gothic mood calibrated with 0.75 AgX exposure and 0.12 ambient floor bounce." }
+        ]
+      },
+      skinning_lab: {
+        id: "skinning_lab",
+        name: "12. 🤖 Articulated Mecha Sentinel",
+        badge: "11-Bone Rig & Action Crossfading",
+        glb: "assets/skinning_lab/skinning_lab.glb",
+        ref: "assets/skinning_lab/cycles_reference.png",
+        camPos: [0.0, 2.2, 5.0],
+        camTarget: [0.0, 1.2, 0.0],
+        fov: 40.0,
+        oobParity: "75.0%",
+        mcpParity: "96.20%",
+        mae: "3.80%",
+        rawSize: "243 KB",
+        optSize: "52.6 KB",
+        reduction: "78.3%",
+        summary: "Rigged bipedal combatant with 100% rigid component bone weighting and actionsMap crossfading preventing superposition bleeding.",
+        bullets: [
+          { cat: "Rigid Weighting", text: "Pre-assigned 100% bone weights to component plates, preventing head visor ripping and vertex bleeding." },
+          { cat: "Action Management", text: "Dedicated actions registry isolating Idle, Walk, and Strike clips with smooth 0.35s crossfading." },
+          { cat: "Skeletal Alignment", text: "Blender Z-up armature transformed into Three.js Y-up joints with verified bone roll." },
+          { cat: "Draco Retention", text: "All 11 joints and 3 animation clips preserved through Draco compression with 78.3% size reduction." }
+        ],
+        animated: true,
+        defaultFrame: 22,
+        maxFrame: 48
+      },
+      goo_lab: {
+        id: "goo_lab",
+        name: "13. 🧪 Magnetic Containment Chamber",
+        badge: "4-Key Morph Targets & Viscous Liquid",
+        glb: "assets/goo_lab/goo_lab.glb",
+        ref: "assets/goo_lab/cycles_reference.png",
+        camPos: [0.0, 2.2, 5.2],
+        camTarget: [0.0, 1.1, 0.0],
+        fov: 38.0,
+        oobParity: "65.0%",
+        mcpParity: "96.04%",
+        mae: "3.96%",
+        rawSize: "439.8 KB",
+        optSize: "323.7 KB",
+        reduction: "26.4%",
+        summary: "Physical hollow open-tube containment shield, 4-key morph target delta retention, and radiant bioluminescent core.",
+        bullets: [
+          { cat: "Morph Targets", text: "4 concurrent morph target delta streams (Squash, Stretch, Wobble1, Wobble2) preserved across Draco." },
+          { cat: "Open Tube Glass", text: "Physical open cylinder eliminating flat-cap endcap z-fighting and shadow occlusion." },
+          { cat: "Volume Absorption", text: "Viscous goo absorption (density: 0.75, IOR: 1.38, transmission: 0.88) with glowing radioactive nuclei." },
+          { cat: "Induction Rings", text: "Induction copper coils and dark titanium alloy base/cap flanges." }
+        ],
+        animated: true,
+        defaultFrame: 24,
+        maxFrame: 60
+      }
+    };
+
+    // DOM Elements
+    const switcherBar = document.getElementById('switcher-bar');
+    const titleEl = document.getElementById('active-showcase-title');
+    const cyclesRefImg = document.getElementById('cycles-ref-img');
+    const canvas = document.getElementById('webgl-canvas');
+    const webglLayer = document.getElementById('webgl-layer');
+    const splitDivider = document.getElementById('split-divider');
+    const viewportBox = document.getElementById('viewport-box');
+    const btnToggleView = document.getElementById('btn-toggle-view');
+    const btnResetCam = document.getElementById('btn-reset-cam');
+    const loadStatus = document.getElementById('load-status');
+    const scrubberPanel = document.getElementById('scrubber-panel');
+    const btnPlayPause = document.getElementById('btn-play-pause');
+    const frameCounter = document.getElementById('frame-counter');
+    const animSlider = document.getElementById('anim-slider');
+    const timeCounter = document.getElementById('time-counter');
+
+    // Telemetry Elements
+    const telBadge = document.getElementById('tel-badge');
+    const telTitle = document.getElementById('tel-title');
+    const telSummary = document.getElementById('tel-summary');
+    const valOob = document.getElementById('val-oob');
+    const valMcp = document.getElementById('val-mcp');
+    const valMae = document.getElementById('val-mae');
+    const valRaw = document.getElementById('val-raw');
+    const valOpt = document.getElementById('val-opt');
+    const valReduct = document.getElementById('val-reduct');
+    const tbsList = document.getElementById('tbs-list');
+
+    // Three.js State
+    let scene, camera, renderer, controls;
+    let currentModel = null;
+    let mixer = null;
+    let actions = [];
+    let isPlaying = false;
+    let currentTime = 0;
+    let activeKey = "bender_cinematic";
+    let isSideBySide = false;
+    let splitPercent = 50.0;
+    let isDraggingSplit = false;
+
+    // Initialize Three.js Engine
+    function initThree() {
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x06080e);
+
+      camera = new THREE.PerspectiveCamera(45.0, 1280 / 720, 0.1, 100.0);
+      camera.position.set(0, 4, 14);
+
+      renderer = new THREE.WebGLRenderer({
+        canvas,
+        antialias: true,
+        powerPreference: 'high-performance',
+        preserveDrawingBuffer: true
+      });
+      renderer.setSize(1280, 720, false);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.toneMapping = THREE.AgXToneMapping;
+      renderer.toneMappingExposure = 1.0;
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+      controls = new OrbitControls(camera, canvas);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.05;
+
+      // Studio Lights Rig
+      const keyLight = new THREE.SpotLight(0xfff5ea, 50.0, 40.0, Math.PI / 3, 0.45);
+      keyLight.position.set(5.0, 8.0, 10.0);
+      scene.add(keyLight);
+
+      const rimLight = new THREE.SpotLight(0x38bdf8, 35.0, 30.0, Math.PI / 3, 0.45);
+      rimLight.position.set(-6.0, 6.0, -8.0);
+      scene.add(rimLight);
+
+      const rimRight = new THREE.SpotLight(0xf59e0b, 30.0, 30.0, Math.PI / 3, 0.45);
+      rimRight.position.set(6.0, 6.0, -8.0);
+      scene.add(rimRight);
+
+      const ambLight = new THREE.AmbientLight(0x0a101f, 1.0);
+      scene.add(ambLight);
+    }
+
+    // Loaders
+    const dracoLoader = new DRACOLoader();
+    dracoLoader.setDecoderPath('https://unpkg.com/three@0.170.0/examples/jsm/libs/draco/');
+
+    const gltfLoader = new GLTFLoader();
+    gltfLoader.setDRACOLoader(dracoLoader);
+    gltfLoader.setMeshoptDecoder(MeshoptDecoder);
+
+    // Populate Switcher Buttons
+    function buildSwitcher() {
+      switcherBar.innerHTML = "";
+      Object.keys(SHOWCASES).forEach((k) => {
+        const sc = SHOWCASES[k];
+        const btn = document.createElement('button');
+        btn.className = `showcase-tab ${k === activeKey ? 'active' : ''}`;
+        btn.innerHTML = `<span>${sc.name}</span> <span class="tab-badge">${sc.mcpParity}</span>`;
+        btn.addEventListener('click', () => switchShowcase(k));
+        switcherBar.appendChild(btn);
+      });
+    }
+
+    // Switch Showcase
+    function switchShowcase(k) {
+      if (!SHOWCASES[k]) return;
+      activeKey = k;
+      const sc = SHOWCASES[k];
+
+      // Update switcher active state
+      document.querySelectorAll('.showcase-tab').forEach((el, idx) => {
+        const key = Object.keys(SHOWCASES)[idx];
+        el.classList.toggle('active', key === activeKey);
+      });
+
+      // Update Header & Telemetry Card
+      titleEl.innerText = sc.name;
+      cyclesRefImg.src = sc.ref;
+      telBadge.innerText = sc.badge;
+      telTitle.innerText = sc.name;
+      telSummary.innerText = sc.summary;
+      valOob.innerText = sc.oobParity;
+      valMcp.innerText = sc.mcpParity;
+      valMae.innerText = `MAE: ${sc.mae}`;
+      valRaw.innerText = sc.rawSize;
+      valOpt.innerText = sc.optSize;
+      valReduct.innerText = `${sc.reduction} Size Reduction`;
+
+      // Update Bullets
+      tbsList.innerHTML = "";
+      sc.bullets.forEach((b) => {
+        const li = document.createElement('li');
+        li.className = 'tbs-item';
+        li.innerHTML = `<span class="tbs-cat">• ${b.cat}:</span> <span>${b.text}</span>`;
+        tbsList.appendChild(li);
+      });
+
+      // Configure Camera
+      camera.fov = sc.fov || 45.0;
+      camera.updateProjectionMatrix();
+      camera.position.set(...sc.camPos);
+      controls.target.set(...sc.camTarget);
+      controls.update();
+
+      // Configure Scrubber
+      if (sc.animated) {
+        scrubberPanel.classList.add('active');
+        animSlider.max = sc.maxFrame || 100;
+        animSlider.value = sc.defaultFrame || 1;
+        currentTime = (sc.defaultFrame || 1) / 24.0;
+        frameCounter.innerText = `F: ${sc.defaultFrame || 1}`;
+        timeCounter.innerText = `${currentTime.toFixed(2)}s`;
+      } else {
+        scrubberPanel.classList.remove('active');
+      }
+
+      // Load 3D GLB
+      loadStatus.innerText = "Loading 3D asset...";
+      if (currentModel) {
+        scene.remove(currentModel);
+        currentModel = null;
+      }
+      mixer = null;
+      actions = [];
+
+      gltfLoader.load(sc.glb, (gltf) => {
+        currentModel = gltf.scene;
+        scene.add(currentModel);
+
+        // Apply physical material calibrations
+        currentModel.traverse((o) => {
+          if (o.isMesh) {
+            o.castShadow = true;
+            o.receiveShadow = true;
+            if (o.material) {
+              o.material.envMapIntensity = 0.5;
+
+              // Transmissive glass
+              if (o.material.name.includes("Glass") || o.name.includes("Prism") || o.material.name.includes("Optical")) {
+                o.material.transmission = 0.98;
+                o.material.ior = 1.52;
+                o.material.transparent = true;
+              }
+
+              // Iridescent soap bubbles
+              if (o.material.name.includes("Bubble") || o.name.includes("Bubble")) {
+                o.material.transmission = 0.98;
+                o.material.ior = 1.333;
+                o.material.iridescence = 1.0;
+                o.material.iridescenceThicknessRange = [100, 480];
+                o.material.clearcoat = 1.0;
+                o.material.transparent = true;
+                o.material.depthWrite = false;
+              }
+
+              // 3D Text Typography Materials
+              if (o.material.name.includes("Title_Cyan_Metallic")) {
+                o.material.color = new THREE.Color(0x19a0ec);
+                o.material.emissive = new THREE.Color(0x0e7490);
+                o.material.emissiveIntensity = 0.9;
+                o.material.metalness = 0.85;
+              }
+              if (o.material.name.includes("Title_Gold_L_Accent")) {
+                o.material.color = new THREE.Color(0xffaa00);
+                o.material.emissive = new THREE.Color(0xff8800);
+                o.material.emissiveIntensity = 2.6;
+                o.material.metalness = 0.95;
+              }
+            }
+          }
+        });
+
+        // Animations setup
+        if (gltf.animations && gltf.animations.length > 0) {
+          mixer = new THREE.AnimationMixer(currentModel);
+          gltf.animations.forEach((clip) => {
+            const act = mixer.clipAction(clip);
+            act.play();
+            actions.push(act);
+          });
+          mixer.setTime(currentTime);
+        }
+
+        loadStatus.innerText = "Loaded 60 FPS";
+      }, undefined, (err) => {
+        console.error(err);
+        loadStatus.innerText = "Load Error";
+      });
+    }
+
+    // Split-Slider Logic
+    function updateSplitPosition(pct) {
+      splitPercent = Math.max(0, Math.min(100, pct));
+      if (!isSideBySide) {
+        splitDivider.style.left = `${splitPercent}%`;
+        // Clip webgl layer so left side reveals Cycles, right side reveals WebGL
+        webglLayer.style.clipPath = `polygon(${splitPercent}% 0, 100% 0, 100% 100%, ${splitPercent}% 100%)`;
+      }
+    }
+    window.setSplitPercent = updateSplitPosition;
+
+    // Viewport Pointer Interaction for Split Slider
+    viewportBox.addEventListener('mousedown', (e) => {
+      if (isSideBySide) return;
+      isDraggingSplit = true;
+      handleSplitMove(e);
+    });
+    window.addEventListener('mousemove', (e) => {
+      if (!isDraggingSplit || isSideBySide) return;
+      handleSplitMove(e);
+    });
+    window.addEventListener('mouseup', () => {
+      isDraggingSplit = false;
+    });
+
+    function handleSplitMove(e) {
+      const rect = viewportBox.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const pct = (x / rect.width) * 100.0;
+      updateSplitPosition(pct);
+    }
+
+    // Toggle Side-by-Side Mode
+    btnToggleView.addEventListener('click', () => {
+      isSideBySide = !isSideBySide;
+      viewportBox.classList.toggle('side-by-side-mode', isSideBySide);
+      btnToggleView.innerText = isSideBySide ? "🔀 Split Slider" : "🔀 Side-by-Side";
+      btnToggleView.classList.toggle('active', isSideBySide);
+      if (isSideBySide) {
+        webglLayer.style.clipPath = 'none';
+      } else {
+        updateSplitPosition(splitPercent);
+      }
+    });
+
+    // Reset Camera
+    btnResetCam.addEventListener('click', () => {
+      const sc = SHOWCASES[activeKey];
+      if (!sc) return;
+      camera.position.set(...sc.camPos);
+      controls.target.set(...sc.camTarget);
+      controls.update();
+    });
+
+    // Playback Controls
+    btnPlayPause.addEventListener('click', () => {
+      isPlaying = !isPlaying;
+      btnPlayPause.innerText = isPlaying ? "⏸ Pause" : "▶ Play";
+      btnPlayPause.classList.toggle('active', isPlaying);
+    });
+
+    animSlider.addEventListener('input', (e) => {
+      isPlaying = false;
+      btnPlayPause.innerText = "▶ Play";
+      btnPlayPause.classList.remove('active');
+      const f = parseInt(e.target.value);
+      currentTime = f / 24.0;
+      frameCounter.innerText = `F: ${f}`;
+      timeCounter.innerText = `${currentTime.toFixed(2)}s`;
+      if (mixer) mixer.setTime(currentTime);
+    });
+
+    // Render Loop
+    let lastTime = performance.now();
+    function animate(now) {
+      requestAnimationFrame(animate);
+
+      const delta = (now - lastTime) / 1000.0;
+      lastTime = now;
+
+      // Advance animation timeline if playing
+      const sc = SHOWCASES[activeKey];
+      if (isPlaying && sc && sc.animated) {
+        currentTime += delta;
+        const maxT = (sc.maxFrame || 60) / 24.0;
+        if (currentTime > maxT) currentTime = 0;
+        const currentF = Math.floor(currentTime * 24.0) + 1;
+        animSlider.value = currentF;
+        frameCounter.innerText = `F: ${currentF}`;
+        timeCounter.innerText = `${currentTime.toFixed(2)}s`;
+        if (mixer) mixer.setTime(currentTime);
+      }
+
+      controls.update();
+      renderer.render(scene, camera);
+    }
+
+    // Startup Initialization
+    initThree();
+    buildSwitcher();
+    switchShowcase("bender_cinematic");
+    updateSplitPosition(50.0);
+    requestAnimationFrame(animate);
+
+  </script>
+</body>
+</html>
