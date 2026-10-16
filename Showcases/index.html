@@ -1347,18 +1347,24 @@
       const sc = SHOWCASES[activeKey];
       if (!sc) return;
 
+      const refOobPath = sc.refOob || sc.ref.replace('cycles_reference.png', 'oob_reference.png');
+      const refPass1Path = sc.refPass1 || sc.ref.replace('cycles_reference.png', 'pass1_reference.png');
+
       if (stage === 'cycles') {
         cyclesRefImg.src = sc.ref;
         vpTagRef.innerText = "Blender Cycles AgX (Ground Truth)";
         vpTagRef.className = "vp-tag vp-tag-cycles";
+        if (splitPercent >= 95) updateSplitPosition(50);
       } else if (stage === 'oob') {
-        cyclesRefImg.src = sc.refOob || sc.ref;
+        cyclesRefImg.src = refOobPath;
         vpTagRef.innerText = "Stock Blender OOB (Uncalibrated Export)";
         vpTagRef.className = "vp-tag vp-tag-oob";
+        if (splitPercent >= 95) updateSplitPosition(50);
       } else if (stage === 'pass1') {
-        cyclesRefImg.src = sc.refPass1 || sc.ref;
+        cyclesRefImg.src = refPass1Path;
         vpTagRef.innerText = "1st Pass Mechanical MCP (Bake + Patch)";
         vpTagRef.className = "vp-tag vp-tag-pass1";
+        if (splitPercent >= 95) updateSplitPosition(50);
       } else if (stage === 'pass2') {
         updateSplitPosition(100);
       }
