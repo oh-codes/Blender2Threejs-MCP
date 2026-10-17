@@ -19,7 +19,7 @@
       },
       {
         "label": "Scene catalogue",
-        "value": "18 scenes"
+        "value": "20 scenes"
       }
     ]
   },
@@ -1538,6 +1538,176 @@
         }
       ],
       "customSetup": "// 1. Soften Area light shafts entering the stormwater drain\n  scene.traverse((o) => {\n    if (o.isSpotLight) {\n      o.angle = Math.min(Math.PI * 0.46, o.angle * 1.35);\n      o.penumbra = 0.85;\n      if (o.shadow) {\n        o.shadow.bias = -0.0003;\n        o.shadow.normalBias = 0.035;\n      }\n    }\n    if (o.isPointLight) {\n      // Warm maintenance worklights\n      o.intensity *= 2.0;\n      o.distance = 15.0;\n    }\n  });\n\n  // 2. Concrete tunnel multi-bounce diffuse GI\n  const hemi = new THREE.HemisphereLight(0x88aacc, 0x33261a, 0.45);\n  scene.add(hemi);\n\n  const ambient = new THREE.AmbientLight(0x202830, 0.3);\n  scene.add(ambient);"
+    },
+    {
+      "id": "alien_animal",
+      "label": "Alien Animal",
+      "badge": "Production Scene · Missing Source Texture",
+      "adoptCamera": false,
+      "references": {
+        "cycles": "assets/alien_animal/cycles_reference.png",
+        "oob": null,
+        "pass1": null
+      },
+      "heatmap": "assets/alien_animal/heatmap.png",
+      "summary": "The base albedo texture is missing from the source, so the Cycles reference renders empty; the comparison is against that empty reference. The pipeline still translates the creature geometry, the packed chitin maps and the sun/spot lighting.",
+      "challenge": "The base albedo texture is missing from the source, so the Cycles reference renders empty; the comparison is against that empty reference. The pipeline still translates the creature geometry, the packed chitin maps and the sun/spot lighting.",
+      "constraints": [
+        "missing base texture",
+        "3 meshes",
+        "organic chitin",
+        "sun + spot"
+      ],
+      "parity": {
+        "oob": "—",
+        "pass1": "70.59%",
+        "pass2": "86.65%",
+        "mae": "13.35%"
+      },
+      "timing": {
+        "oob": "",
+        "pass1": "",
+        "pass2": "",
+        "iterations": ""
+      },
+      "size": {
+        "raw": "46.4 MB",
+        "opt": "5.28 MB",
+        "reduction": "88.62%"
+      },
+      "complexity": {
+        "raw": {
+          "objects": 3,
+          "triangles": 107430,
+          "materials": 4,
+          "textures": 6,
+          "lights": 2,
+          "bones": 171,
+          "morph_targets": 0,
+          "animations": 13,
+          "draw_calls": 4
+        },
+        "delivered": {
+          "objects": 3,
+          "triangles": 107430,
+          "materials": 4,
+          "textures": 6,
+          "lights": 2,
+          "bones": 342,
+          "morph_targets": 0,
+          "animations": 13,
+          "draw_calls": 4
+        }
+      },
+      "bullets": [
+        {
+          "cat": "Reference",
+          "text": "The missing base texture leaves the Cycles reference empty; the heatmap shows the geometry against that empty frame."
+        },
+        {
+          "cat": "Lighting",
+          "text": "Sun and spot intensities and shadow bias calibrated; ambient fill lifts the cavity shadows."
+        },
+        {
+          "cat": "Background",
+          "text": "Background calibrated to the Cycles AgX world (#39393a)."
+        }
+      ],
+      "customSetup": "// 1. Calibrate background color matching Cycles AgX World\nscene.background = new THREE.Color('#39393a');\n\n// 2. Exact Blender camera translation & optical targeting\ncamera.position.set(31.776279, 10.746194, 41.236115);\ncamera.fov = 39.6;\ncontrols.target.set(-1.388773, 7.239217, 1.992894);\ncamera.lookAt(controls.target);\ncamera.updateProjectionMatrix();\n\n// 3. Shadow parameters on Sun & Spot + Ambient bounce to lift crushed shadows\nscene.traverse((obj) => {\n  if (obj.isLight) {\n    if (obj.isDirectionalLight) {\n      obj.intensity = 0.95;\n      obj.castShadow = true;\n      obj.shadow.bias = -0.0003;\n      obj.shadow.normalBias = 0.035;\n      obj.shadow.mapSize.set(2048, 2048);\n    } else if (obj.isSpotLight) {\n      obj.intensity = 1.20;\n      obj.angle = Math.PI * 0.44;\n      obj.penumbra = 0.85;\n      obj.castShadow = true;\n      obj.shadow.bias = -0.0003;\n      obj.shadow.normalBias = 0.035;\n    }\n  }\n  if (obj.isMesh) {\n    obj.castShadow = true;\n    obj.receiveShadow = true;\n  }\n});\n\n// 4. Ambient fill to lift cavity and cast shadows matching Cycles multi-bounce\nconst ambient = new THREE.AmbientLight(0x282a2c, 0.45);\nscene.add(ambient);\n\nrenderer.toneMappingExposure = 1.0;",
+      "camera": {
+        "position": [
+          31.776279,
+          10.746194,
+          41.236115
+        ],
+        "target": [
+          -1.388773,
+          7.239217,
+          1.992894
+        ],
+        "fov": 39.6
+      },
+      "defaultView": "webgl-only"
+    },
+    {
+      "id": "quantum",
+      "label": "Quantum Computer",
+      "badge": "Production Scene · Glass Casing",
+      "adoptCamera": true,
+      "references": {
+        "cycles": "assets/quantum/cycles_reference.png",
+        "oob": null,
+        "pass1": null
+      },
+      "heatmap": "assets/quantum/heatmap.png",
+      "summary": "A dilution refrigerator with a glass casing and gold wiring tiers. The glass casing casts a fully opaque shadow over the interior, and the wire grid is easy to lose in the reflection.",
+      "challenge": "A dilution refrigerator with a glass casing and gold wiring tiers. The glass casing casts a fully opaque shadow over the interior, and the wire grid is easy to lose in the reflection.",
+      "constraints": [
+        "38 meshes",
+        "glass casing",
+        "gold wiring",
+        "opaque shadow"
+      ],
+      "parity": {
+        "oob": "—",
+        "pass1": "85.09%",
+        "pass2": "88.72%",
+        "mae": "11.28%"
+      },
+      "timing": {
+        "oob": "",
+        "pass1": "",
+        "pass2": "",
+        "iterations": ""
+      },
+      "size": {
+        "raw": "63.3 MB",
+        "opt": "3.12 MB",
+        "reduction": "95.1%"
+      },
+      "complexity": {
+        "raw": {
+          "objects": 39,
+          "triangles": 897026,
+          "materials": 12,
+          "textures": 16,
+          "lights": 3,
+          "bones": 0,
+          "morph_targets": 0,
+          "animations": 1,
+          "draw_calls": 40
+        },
+        "delivered": {
+          "objects": 39,
+          "triangles": 896636,
+          "materials": 12,
+          "textures": 16,
+          "lights": 3,
+          "bones": 0,
+          "morph_targets": 0,
+          "animations": 1,
+          "draw_calls": 40
+        }
+      },
+      "bullets": [
+        {
+          "cat": "Shadows",
+          "text": "Glass casing no longer casts opaque shadows; spot bias and normalBias calibrated."
+        },
+        {
+          "cat": "IBL",
+          "text": "Room-environment IBL at 0.26 intensity restores the gold wiring reflections."
+        },
+        {
+          "cat": "GI Fill",
+          "text": "Cool-sky / warm-ground hemisphere fill recovers the interior bounce."
+        },
+        {
+          "cat": "Bandwidth",
+          "text": "63.3 MB raw glTF to 3.12 MB delivered (95.1% reduction)."
+        }
+      ],
+      "customSetup": "// 1. Disable shadow casting on glass meshes\n  scene.traverse((o) => {\n    if (o.isMesh && o.material) {\n      const mats = Array.isArray(o.material) ? o.material : [o.material];\n      if (mats.some(m => (m.transmission && m.transmission > 0.05) || (m.name && m.name.toLowerCase().includes('glass')))) {\n        o.castShadow = false;\n      }\n    }\n    if (o.isSpotLight && o.shadow) {\n      o.shadow.bias = -0.0003;\n      o.shadow.normalBias = 0.035;\n    }\n  });\n\n  // 2. Calibrated IBL\n  const pmrem = new THREE.PMREMGenerator(renderer);\n  scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;\n  scene.environmentIntensity = 0.26;\n\n  // 3. Hemisphere GI fill (Sky: cool blue-cyan from Area.001/002, Ground: warm amber reflection)\n  const hemi = new THREE.HemisphereLight(0x70aaff, 0x553311, 0.45);\n  scene.add(hemi);"
     }
   ]
 }
