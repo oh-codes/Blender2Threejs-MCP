@@ -1316,7 +1316,13 @@
           "text": "Physical hemisphere GI bounce and exposure 0.94 matched to the Cycles reference."
         }
       ],
-      "customSetup": "// 1. Physical GI Hemisphere: Sky cyan bounce from above, magenta floor bounce from below\nconst giHemi = new THREE.HemisphereLight(0x5599bb, 0x662266, 0.40);\nscene.add(giHemi);\n\n// 2. Lift ambient indirect bounce via environmentIntensity and calibrated exposure\nscene.environmentIntensity = 1.35;\nrenderer.toneMappingExposure = 0.94;\n\nscene.traverse((obj) => {\n  if (obj.isLight) {\n    const pName = obj.parent ? obj.parent.name : '';\n    if (obj.name === 'Point.005' || pName === 'Point.005' || obj.name === 'Point.007' || pName === 'Point.007') {\n      obj.intensity = 60.0;\n    }\n    if (obj.name === 'Light.001' || pName === 'Light.001') {\n      obj.intensity = 160.0;\n    }\n  }\n  // 3. White Billboard Panel: In Cycles, 200W emission blows out to pure white under AgX\n  if (obj.isMesh && obj.name === 'Plane.015') {\n    const mats = Array.isArray(obj.material) ? obj.material : [obj.material];\n    mats.forEach((m) => {\n      m.color.set(0xeeeeff);\n      m.emissiveIntensity = 8.0;\n    });\n  }\n});"
+      "customSetup": "// 1. Physical GI Hemisphere: Sky cyan bounce from above, magenta floor bounce from below\nconst giHemi = new THREE.HemisphereLight(0x5599bb, 0x662266, 0.40);\nscene.add(giHemi);\n\n// 2. Lift ambient indirect bounce via environmentIntensity and calibrated exposure\nscene.environmentIntensity = 1.35;\nrenderer.toneMappingExposure = 0.94;\n\nscene.traverse((obj) => {\n  if (obj.isLight) {\n    const pName = obj.parent ? obj.parent.name : '';\n    if (obj.name === 'Point.005' || pName === 'Point.005' || obj.name === 'Point.007' || pName === 'Point.007') {\n      obj.intensity = 60.0;\n    }\n    if (obj.name === 'Light.001' || pName === 'Light.001') {\n      obj.intensity = 160.0;\n    }\n  }\n  // 3. White Billboard Panel: In Cycles, 200W emission blows out to pure white under AgX\n  if (obj.isMesh && obj.name === 'Plane.015') {\n    const mats = Array.isArray(obj.material) ? obj.material : [obj.material];\n    mats.forEach((m) => {\n      m.color.set(0xeeeeff);\n      m.emissiveIntensity = 8.0;\n    });\n  }\n});",
+      "background": "#404040",
+      "environment": {
+        "color": "#404040",
+        "scale": 1.0
+      },
+      "useSceneLights": true
     },
     {
       "id": "hologram",
@@ -1391,7 +1397,13 @@
           "text": "Holographic torus cores boosted so the emissive geometry reads as the light source."
         }
       ],
-      "customSetup": "// Eliminate self-shadowing acne on holographic platform\n  scene.traverse((o) => {\n    if (o.isLight && o.shadow) {\n      o.shadow.bias = -0.0003;\n      o.shadow.normalBias = 0.035;\n    }\n    // Boost cyan holographic ring emission core\n    if (o.isMesh && o.material && (o.name.includes('Torus') || o.name.includes('Circle'))) {\n      const mats = Array.isArray(o.material) ? o.material : [o.material];\n      mats.forEach((m) => {\n        if (m.emissive) {\n          m.emissiveIntensity = Math.max(m.emissiveIntensity || 1.0, 2.2);\n        }\n      });\n    }\n  });"
+      "customSetup": "// Eliminate self-shadowing acne on holographic platform\n  scene.traverse((o) => {\n    if (o.isLight && o.shadow) {\n      o.shadow.bias = -0.0003;\n      o.shadow.normalBias = 0.035;\n    }\n    // Boost cyan holographic ring emission core\n    if (o.isMesh && o.material && (o.name.includes('Torus') || o.name.includes('Circle'))) {\n      const mats = Array.isArray(o.material) ? o.material : [o.material];\n      mats.forEach((m) => {\n        if (m.emissive) {\n          m.emissiveIntensity = Math.max(m.emissiveIntensity || 1.0, 2.2);\n        }\n      });\n    }\n  });",
+      "background": "#1a1a1b",
+      "environment": {
+        "color": "#212121",
+        "scale": 1.0
+      },
+      "useSceneLights": true
     },
     {
       "id": "mustang",
@@ -1466,7 +1478,13 @@
           "text": "Dark maroon AgX fill matched to the infinity drape."
         }
       ],
-      "customSetup": "// Turn off tiny Point light\nscene.traverse(o => {\n  if (o.isLight && o.name === 'Point') o.intensity = 0;\n});\n\n// Overhead softbox\nconst top = new THREE.DirectionalLight(0xfff0ea, 4.0);\ntop.position.set(2, 20, 0);\nscene.add(top);\n\n// Key softbox from left-rear\nconst key = new THREE.DirectionalLight(0xffeedd, 5.5);\nkey.position.set(-15, 12, -12);\nkey.castShadow = true;\nkey.shadow.bias = -0.0003;\nkey.shadow.normalBias = 0.035;\nscene.add(key);\n\n// Right front rim softbox\nconst rim = new THREE.DirectionalLight(0xffffff, 3.4);\nrim.position.set(12, 10, 10);\nscene.add(rim);\n\n// Ambient floor & backdrop fill matching Cycles AgX dark maroon [21, 5, 11]\nconst fill = new THREE.AmbientLight(0x2d0b13, 0.95);\nscene.add(fill);\n\n// Convert car body materials to automotive clearcoat\nscene.traverse(o => {\n  if (o.isMesh) {\n    if (o.name.includes('Background') || o.name.includes('Drape')) {\n      o.castShadow = false;\n      o.receiveShadow = false;\n    }\n    if (o.material) {\n      const mats = Array.isArray(o.material) ? o.material : [o.material];\n      mats.forEach((m, idx) => {\n        if (m.name === 'Gloss Red') {\n          const phys = new THREE.MeshPhysicalMaterial({\n            color: m.color,\n            map: m.map,\n            roughness: 0.28,\n            metalness: 0.12,\n            clearcoat: 1.0,\n            clearcoatRoughness: 0.05,\n            side: m.side\n          });\n          if (Array.isArray(o.material)) o.material[idx] = phys;\n          else o.material = phys;\n        }\n      });\n    }\n  }\n});"
+      "customSetup": "// Turn off tiny Point light\nscene.traverse(o => {\n  if (o.isLight && o.name === 'Point') o.intensity = 0;\n});\n\n// Overhead softbox\nconst top = new THREE.DirectionalLight(0xfff0ea, 4.0);\ntop.position.set(2, 20, 0);\nscene.add(top);\n\n// Key softbox from left-rear\nconst key = new THREE.DirectionalLight(0xffeedd, 5.5);\nkey.position.set(-15, 12, -12);\nkey.castShadow = true;\nkey.shadow.bias = -0.0003;\nkey.shadow.normalBias = 0.035;\nscene.add(key);\n\n// Right front rim softbox\nconst rim = new THREE.DirectionalLight(0xffffff, 3.4);\nrim.position.set(12, 10, 10);\nscene.add(rim);\n\n// Ambient floor & backdrop fill matching Cycles AgX dark maroon [21, 5, 11]\nconst fill = new THREE.AmbientLight(0x2d0b13, 0.95);\nscene.add(fill);\n\n// Convert car body materials to automotive clearcoat\nscene.traverse(o => {\n  if (o.isMesh) {\n    if (o.name.includes('Background') || o.name.includes('Drape')) {\n      o.castShadow = false;\n      o.receiveShadow = false;\n    }\n    if (o.material) {\n      const mats = Array.isArray(o.material) ? o.material : [o.material];\n      mats.forEach((m, idx) => {\n        if (m.name === 'Gloss Red') {\n          const phys = new THREE.MeshPhysicalMaterial({\n            color: m.color,\n            map: m.map,\n            roughness: 0.28,\n            metalness: 0.12,\n            clearcoat: 1.0,\n            clearcoatRoughness: 0.05,\n            side: m.side\n          });\n          if (Array.isArray(o.material)) o.material[idx] = phys;\n          else o.material = phys;\n        }\n      });\n    }\n  }\n});",
+      "background": "#150409",
+      "environment": {
+        "color": "#150409",
+        "scale": 0.25
+      },
+      "useSceneLights": true
     },
     {
       "id": "stormwater",
@@ -1537,7 +1555,13 @@
           "text": "Hemisphere fill added to recover the sky bounce inside the tunnel."
         }
       ],
-      "customSetup": "// 1. Soften Area light shafts entering the stormwater drain\n  scene.traverse((o) => {\n    if (o.isSpotLight) {\n      o.angle = Math.min(Math.PI * 0.46, o.angle * 1.35);\n      o.penumbra = 0.85;\n      if (o.shadow) {\n        o.shadow.bias = -0.0003;\n        o.shadow.normalBias = 0.035;\n      }\n    }\n    if (o.isPointLight) {\n      // Warm maintenance worklights\n      o.intensity *= 2.0;\n      o.distance = 15.0;\n    }\n  });\n\n  // 2. Concrete tunnel multi-bounce diffuse GI\n  const hemi = new THREE.HemisphereLight(0x88aacc, 0x33261a, 0.45);\n  scene.add(hemi);\n\n  const ambient = new THREE.AmbientLight(0x202830, 0.3);\n  scene.add(ambient);"
+      "customSetup": "// 1. Soften Area light shafts entering the stormwater drain\n  scene.traverse((o) => {\n    if (o.isSpotLight) {\n      o.angle = Math.min(Math.PI * 0.46, o.angle * 1.35);\n      o.penumbra = 0.85;\n      if (o.shadow) {\n        o.shadow.bias = -0.0003;\n        o.shadow.normalBias = 0.035;\n      }\n    }\n    if (o.isPointLight) {\n      // Warm maintenance worklights\n      o.intensity *= 2.0;\n      o.distance = 15.0;\n    }\n  });\n\n  // 2. Concrete tunnel multi-bounce diffuse GI\n  const hemi = new THREE.HemisphereLight(0x88aacc, 0x33261a, 0.45);\n  scene.add(hemi);\n\n  const ambient = new THREE.AmbientLight(0x202830, 0.3);\n  scene.add(ambient);",
+      "background": "#1a1d1e",
+      "environment": {
+        "color": null,
+        "scale": 0.25
+      },
+      "useSceneLights": true
     },
     {
       "id": "alien_animal",
@@ -1627,7 +1651,13 @@
         ],
         "fov": 39.6
       },
-      "defaultView": "webgl-only"
+      "defaultView": "webgl-only",
+      "background": "#39393a",
+      "environment": {
+        "color": "#39393a",
+        "scale": 0.25
+      },
+      "useSceneLights": true
     },
     {
       "id": "quantum",
@@ -1707,7 +1737,13 @@
           "text": "63.3 MB raw glTF to 3.12 MB delivered (95.1% reduction)."
         }
       ],
-      "customSetup": "// 1. Disable shadow casting on glass meshes\n  scene.traverse((o) => {\n    if (o.isMesh && o.material) {\n      const mats = Array.isArray(o.material) ? o.material : [o.material];\n      if (mats.some(m => (m.transmission && m.transmission > 0.05) || (m.name && m.name.toLowerCase().includes('glass')))) {\n        o.castShadow = false;\n      }\n    }\n    if (o.isSpotLight && o.shadow) {\n      o.shadow.bias = -0.0003;\n      o.shadow.normalBias = 0.035;\n    }\n  });\n\n  // 2. Calibrated IBL\n  const pmrem = new THREE.PMREMGenerator(renderer);\n  scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;\n  scene.environmentIntensity = 0.26;\n\n  // 3. Hemisphere GI fill (Sky: cool blue-cyan from Area.001/002, Ground: warm amber reflection)\n  const hemi = new THREE.HemisphereLight(0x70aaff, 0x553311, 0.45);\n  scene.add(hemi);"
+      "customSetup": "// 1. Disable shadow casting on glass meshes\n  scene.traverse((o) => {\n    if (o.isMesh && o.material) {\n      const mats = Array.isArray(o.material) ? o.material : [o.material];\n      if (mats.some(m => (m.transmission && m.transmission > 0.05) || (m.name && m.name.toLowerCase().includes('glass')))) {\n        o.castShadow = false;\n      }\n    }\n    if (o.isSpotLight && o.shadow) {\n      o.shadow.bias = -0.0003;\n      o.shadow.normalBias = 0.035;\n    }\n  });\n\n  // 2. Calibrated IBL\n  const pmrem = new THREE.PMREMGenerator(renderer);\n  scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;\n  scene.environmentIntensity = 0.26;\n\n  // 3. Hemisphere GI fill (Sky: cool blue-cyan from Area.001/002, Ground: warm amber reflection)\n  const hemi = new THREE.HemisphereLight(0x70aaff, 0x553311, 0.45);\n  scene.add(hemi);",
+      "background": "#14181e",
+      "environment": {
+        "color": "#404040",
+        "scale": 1.0
+      },
+      "useSceneLights": true
     }
   ]
 }

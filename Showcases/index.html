@@ -589,7 +589,7 @@
     </div>
 
     <div class="tb-spacer"></div>
-    <span id="tb-parity" class="tb-metric mono" title="2nd-pass deliverable parity vs Cycles">—</span>
+    <span id="tb-parity" class="tb-metric mono" title="Pipeline-measured 2nd-pass parity vs Cycles (captured render)">—</span>
     <span id="tb-size" class="tb-metric mono" title="Draco / Meshopt GLB size">—</span>
     <button id="drawer-toggle" class="tb-icon-btn" type="button" aria-label="Toggle inspector" aria-expanded="false" aria-controls="inspector">ⓘ</button>
   </header>
@@ -684,6 +684,7 @@
         <div><span>MCP pass 1</span><strong id="insp-pass1" class="mono">—</strong><small id="insp-pass1-sub" class="mono"></small></div>
         <div><span>Delivered</span><strong id="insp-pass2" class="mono is-accent">—</strong><small id="insp-pass2-sub" class="mono"></small></div>
       </div>
+      <p class="insp-note">Parity is measured on the pipeline's captured render, not re-scored in this viewer.</p>
     </section>
 
     <section class="insp-section" id="residual-section" aria-labelledby="insp-residual-h" hidden>
@@ -809,7 +810,8 @@
       popoverActive: 0,
       filteredIds: [],
       adoptedCamera: null,
-      customObjects: []
+      customObjects: [],
+      studioLights: []
     };
 
     let scene, camera, renderer, controls;
@@ -861,6 +863,13 @@
             fov: Number.isFinite(cam.fov) ? cam.fov : 45
           },
           adoptCamera: item.adoptCamera === true,
+          useSceneLights: item.useSceneLights === true,
+          environment: item.environment && typeof item.environment === 'object'
+            ? {
+                color: typeof item.environment.color === 'string' ? item.environment.color : null,
+                scale: Number.isFinite(item.environment.scale) ? item.environment.scale : 1.0
+              }
+            : null,
           defaultView: typeof item.defaultView === 'string' && VIEW_META[item.defaultView]
             ? item.defaultView
             : null,
@@ -1211,6 +1220,7 @@
 
       const ambLight = new THREE.AmbientLight(0x0a101f, 1.0);
       scene.add(ambLight);
+      state.studioLights = [keyLight, rimLight, rimRight, ambLight];
 
       new ResizeObserver(() => resizeRenderer()).observe(glMedia);
       window.addEventListener('resize', resizeRenderer);
@@ -1351,6 +1361,51 @@
       }
     }
 
+    function buildEnvironment(showcase) {
+      const config = showcase.environment;
+      if (!config) return;
+
+      const width = 256;
+      const height = 128;
+      const data = new Float32Array(width * height * 4);
+      let red = 0.025;
+      let green = 0.028;
+      let blue = 0.035;
+
+      if (config.color) {
+        const base = new THREE.Color(config.color).convertSRGBToLinear();
+        const scale = Number.isFinite(config.scale) ? config.scale : 1.0;
+        red = base.r * scale;
+        green = base.g * scale;
+        blue = base.b * scale;
+      }
+
+      for (let i = 0; i < width * height; i++) {
+        data[i * 4] = red;
+        data[i * 4 + 1] = green;
+        data[i * 4 + 2] = blue;
+        data[i * 4 + 3] = 1;
+      }
+
+      const source = new THREE.DataTexture(data, width, height, THREE.RGBAFormat, THREE.FloatType);
+      source.mapping = THREE.EquirectangularReflectionMapping;
+      source.needsUpdate = true;
+      const pmrem = new THREE.PMREMGenerator(renderer);
+      scene.environment = pmrem.fromEquirectangular(source).texture;
+      source.dispose();
+      pmrem.dispose();
+    }
+
+    function addDefaultRig() {
+      const ambient = new THREE.AmbientLight(0xffffff, 0.35);
+      const key = new THREE.DirectionalLight(0xffffff, 1.0);
+      key.position.set(30, 50, 30);
+      const fill = new THREE.DirectionalLight(0xddeeff, 0.4);
+      fill.position.set(-30, 30, -30);
+      scene.add(ambient, key, fill);
+      state.customObjects.push(ambient, key, fill);
+    }
+
     function adoptCameraFromGLB(gltf) {
       if (!gltf.cameras || !gltf.cameras.length) return;
       const source = gltf.cameras[0];
@@ -1433,6 +1488,8 @@
         scene.add(currentModel);
         applyMaterialCalibrations(currentModel);
         if (showcase.adoptCamera) adoptCameraFromGLB(gltf);
+        if (showcase.useSceneLights) addDefaultRig();
+        buildEnvironment(showcase);
 
         if (showcase.customSetup) {
           const before = new Set(scene.children);
@@ -1442,7 +1499,7 @@
               showcase.customSetup
             );
             setup(THREE, scene, renderer, camera, controls, gltf, RoomEnvironment);
-            state.customObjects = scene.children.filter((child) => !before.has(child));
+            state.customObjects.push(...scene.children.filter((child) => !before.has(child)));
           } catch (error) {
             console.warn('Scene custom setup failed:', error);
           }
@@ -1513,6 +1570,7 @@
       updatePlaybackUI(showcase);
 
       clearCustomSetup();
+      for (const light of state.studioLights) light.visible = showcase.useSceneLights !== true;
       disposeCurrentModel();
       applyViewMode();
       loadGLB(showcase);
