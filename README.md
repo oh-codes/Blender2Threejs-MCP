@@ -97,6 +97,22 @@ npx serve .
 
 Open `http://localhost:8080/Showcases/` in your browser.
 
+### Adding or removing a showcase
+
+The portal discovers its content from `Showcases/showcases.json`; `index.html` contains no scene
+list. To add a showcase:
+
+1. Create `Showcases/assets/<id>/` with `<id>.glb`, `cycles_reference.png`, `oob_reference.png`,
+   and `pass1_reference.png`.
+2. Add one object to the `showcases` array in `Showcases/showcases.json`. `id` is the only required
+   field; asset paths default to the folder convention above.
+3. `bender_cinematic` is pinned first and selected by default (`default` in the manifest); the rest
+   render in manifest order.
+
+Removing a showcase means deleting its JSON entry (and optionally the asset folder). Static hosting
+cannot enumerate directories in the browser, so the JSON is the discovery layer; a generator can
+emit it from the folder tree later.
+
 ---
 
 ## 📄 License

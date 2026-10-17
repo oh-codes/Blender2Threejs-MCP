@@ -3,637 +3,419 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Blender2Three-MCP — Unified Visual Parity Showcase</title>
+  <title>Blender2Three-MCP — Visual Parity Showcase</title>
+  <link rel="icon" href="data:,">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      --bg: #07090e;
-      --card-bg: rgba(15, 20, 32, 0.85);
-      --card-border: #1e2638;
-      --accent-cyan: #38bdf8;
-      --accent-gold: #f59e0b;
-      --accent-emerald: #10b981;
-      --accent-rose: #f43f5e;
-      --text: #f1f5f9;
-      --text-muted: #94a3b8;
+      --bg: #121214;
+      --surface: #18181b;
+      --surface-2: #1f1f23;
+      --surface-3: #26262b;
+      --line: #2a2a2f;
+      --line-strong: #3a3a41;
+      --text: #e8e8ea;
+      --text-muted: #9a9aa2;
+      --text-faint: #6b6b73;
+      --accent: #d4a24c;
+      --accent-soft: rgba(212, 162, 76, 0.14);
+      --accent-line: rgba(212, 162, 76, 0.35);
+      --topbar-h: 48px;
+      --drawer-w: 360px;
+      --font-ui: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: ui-monospace, 'Cascadia Mono', 'SFMono-Regular', Menlo, Consolas, monospace;
+      --dur: 160ms;
+      --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
     }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
     body {
+      height: 100vh;
+      height: 100dvh;
+      display: grid;
+      grid-template-rows: var(--topbar-h) minmax(0, 1fr);
       background: var(--bg);
       color: var(--text);
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 16px 20px 40px;
-      overflow-x: hidden;
-    }
-
-    /* Header */
-    header {
-      text-align: center;
-      max-width: 1200px;
-      margin-bottom: 12px;
-      width: 100%;
-    }
-    .header-logo-row {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      margin-bottom: 6px;
-    }
-    h1 {
-      font-family: 'Outfit', sans-serif;
-      font-size: 28px;
-      font-weight: 800;
-      letter-spacing: -0.5px;
-      background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    p.subtitle {
-      color: var(--text-muted);
-      font-size: 13.5px;
-      line-height: 1.5;
-      max-width: 900px;
-      margin: 0 auto;
-    }
-    .global-badges {
-      display: flex;
-      gap: 8px;
-      justify-content: center;
-      margin-top: 10px;
-      flex-wrap: wrap;
-    }
-    .pill {
-      background: rgba(56, 189, 248, 0.10);
-      border: 1px solid rgba(56, 189, 248, 0.25);
-      color: #7dd3fc;
-      padding: 3px 10px;
-      border-radius: 999px;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.2px;
-    }
-    .pill.pill-gold {
-      background: rgba(245, 158, 11, 0.12);
-      border-color: rgba(245, 158, 11, 0.35);
-      color: #fbbf24;
-    }
-    .pill.pill-green {
-      background: rgba(16, 185, 129, 0.12);
-      border-color: rgba(16, 185, 129, 0.35);
-      color: #34d399;
-    }
-
-    /* Showcase Selection Drawer / Carousel */
-    .switcher-container {
-      width: 100%;
-      max-width: 1440px;
-      margin-bottom: 14px;
-      overflow-x: auto;
-      padding-bottom: 6px;
-      scrollbar-width: thin;
-      scrollbar-color: #232d42 transparent;
-    }
-    .switcher-container::-webkit-scrollbar {
-      height: 6px;
-    }
-    .switcher-container::-webkit-scrollbar-thumb {
-      background: #232d42;
-      border-radius: 4px;
-    }
-    .switcher-bar {
-      display: flex;
-      gap: 8px;
-      width: max-content;
-      padding: 2px 4px;
-    }
-    .showcase-tab {
-      background: #111624;
-      border: 1px solid var(--card-border);
-      color: var(--text-muted);
-      padding: 8px 14px;
-      border-radius: 10px;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: all 0.2s ease;
-      white-space: nowrap;
-    }
-    .showcase-tab:hover {
-      background: #1a2236;
-      border-color: #334155;
-      color: var(--text);
-    }
-    .showcase-tab.active {
-      background: linear-gradient(135deg, rgba(2, 132, 199, 0.25), rgba(37, 99, 235, 0.25));
-      border-color: #38bdf8;
-      color: #ffffff;
-      box-shadow: 0 0 16px rgba(56, 189, 248, 0.25);
-    }
-    .tab-badge {
-      font-size: 10px;
-      padding: 2px 6px;
-      border-radius: 4px;
-      background: rgba(255, 255, 255, 0.08);
-    }
-    .showcase-tab.active .tab-badge {
-      background: rgba(56, 189, 248, 0.25);
-      color: #38bdf8;
-    }
-
-    /* App Stage Layout */
-    .app-stage {
-      display: grid;
-      grid-template-columns: 1fr 380px;
-      gap: 16px;
-      width: 100%;
-      max-width: 1440px;
-      align-items: start;
-    }
-    @media (max-width: 1180px) {
-      .app-stage {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    /* Left Stage: Viewer Container */
-    .viewer-card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 14px;
+      font-family: var(--font-ui);
+      font-size: 13px;
+      line-height: 1.45;
       overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6);
     }
-    .viewer-header {
-      padding: 10px 16px;
-      background: #0d121e;
-      border-bottom: 1px solid var(--card-border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-    .viewer-title-group {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .viewer-title {
-      font-family: 'Outfit', sans-serif;
-      font-size: 15px;
-      font-weight: 700;
-      color: #ffffff;
-    }
+    .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+    button, input { font: inherit; color: inherit; }
+    button { background: none; border: 0; cursor: pointer; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    [hidden] { display: none !important; }
 
-    /* Controls Bar inside Viewer */
-    .viewer-toolbar {
+    /* ── Topbar ─────────────────────────────────────────────────────────── */
+    .topbar {
+      height: var(--topbar-h);
       display: flex;
       align-items: center;
       gap: 8px;
-      flex-wrap: wrap;
+      padding: 0 12px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--line);
+      z-index: 50;
     }
-    .btn {
-      background: #182030;
-      color: var(--text);
-      border: 1px solid #29354d;
-      padding: 5px 12px;
-      border-radius: 6px;
-      font-size: 11.5px;
-      font-weight: 600;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.2s ease;
-      white-space: nowrap;
-    }
-    .btn:hover {
-      background: #26334d;
-      border-color: #3b4d70;
-    }
-    .btn.active {
-      background: #0284c7;
-      border-color: #38bdf8;
-      color: #fff;
-    }
-    .btn-gold {
-      border-color: rgba(245, 158, 11, 0.4);
-      color: #fbbf24;
-    }
-
-    /* Stage Comparison Selector Bar */
-    .stage-nav-bar {
+    .wordmark {
       display: flex;
       align-items: center;
-      gap: 10px;
-      margin-bottom: 10px;
-      flex-wrap: wrap;
+      gap: 8px;
+      padding: 0 6px 0 2px;
+      color: var(--text);
+      font-weight: 600;
+      font-size: 12.5px;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
     }
-    .stage-nav-label {
-      font-size: 11px;
-      font-weight: 700;
-      color: #94a3b8;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+    .wordmark:hover { text-decoration: none; }
+    .wordmark-mark {
+      display: inline-grid;
+      place-items: center;
+      width: 27px;
+      height: 22px;
+      border: 1px solid var(--line-strong);
+      border-radius: 5px;
+      color: var(--accent);
+      font: 600 10px/1 var(--font-mono);
+      letter-spacing: 0.02em;
     }
-    .stage-buttons {
-      display: inline-flex;
-      background: #0b0f19;
-      border: 1px solid #1e2638;
-      border-radius: 8px;
-      padding: 3px;
-      gap: 3px;
-    }
-    .stage-btn {
+    .tb-menus { display: flex; align-items: center; gap: 6px; min-width: 0; }
+    .tb-menu-wrap { position: relative; min-width: 0; }
+    .tb-control {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      height: 30px;
+      max-width: 46vw;
+      min-width: 0;
+      padding: 0 10px;
+      white-space: nowrap;
+      border: 1px solid transparent;
+      border-radius: 6px;
       background: transparent;
-      color: #94a3b8;
-      border: none;
-      padding: 5px 12px;
+      color: var(--text-muted);
+      transition: background var(--dur) var(--ease), color var(--dur) var(--ease), border-color var(--dur) var(--ease);
+    }
+    .tb-control:hover { background: var(--surface-2); color: var(--text); }
+    .tb-control[aria-expanded="true"] { background: var(--surface-2); border-color: var(--line-strong); color: var(--text); }
+    .tb-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .idx { color: var(--text-faint); font-size: 11px; }
+    .qual { color: var(--text-faint); font-size: 11px; white-space: nowrap; }
+    .chev {
+      width: 0; height: 0;
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-top: 5px solid currentColor;
+      opacity: 0.65;
+      flex: none;
+    }
+    .tb-spacer { flex: 1; }
+    .tb-metric { color: var(--text-muted); font-size: 11.5px; white-space: nowrap; }
+    #tb-parity { color: var(--text); font-weight: 600; }
+    .tb-metric.is-muted { opacity: 0.4; }
+    .tb-icon-btn {
+      display: inline-grid;
+      place-items: center;
+      width: 30px; height: 30px;
       border-radius: 6px;
-      font-size: 11px;
-      font-weight: 600;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      transition: all 0.2s ease;
-      white-space: nowrap;
+      color: var(--text-muted);
+      font-size: 15px;
     }
-    .stage-btn:hover {
-      color: #f1f5f9;
-      background: #182030;
-    }
-    .stage-btn.active {
-      background: #0284c7;
-      color: #ffffff;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.4);
-    }
-    .stage-btn[data-stage="oob"].active {
-      background: #e11d48;
-    }
-    .stage-btn[data-stage="pass1"].active {
-      background: #0284c7;
-    }
-    .stage-btn[data-stage="pass2"].active {
-      background: #10b981;
-    }
+    .tb-icon-btn:hover { background: var(--surface-2); color: var(--text); }
+    .tb-icon-btn[aria-expanded="true"] { background: var(--accent-soft); color: var(--accent); }
 
-    /* Main Viewport Container */
-    .viewport-container {
-      position: relative;
-      width: 100%;
-      aspect-ratio: 16 / 9;
-      background: #030407;
-      overflow: hidden;
-      user-select: none;
-    }
-
-    /* Viewport Split-Slider Elements */
-    .view-layer {
+    /* ── Menus ──────────────────────────────────────────────────────────── */
+    .menu {
       position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
+      top: calc(100% + 6px);
+      left: 0;
+      z-index: 70;
+      min-width: 250px;
+      padding: 6px;
+      background: var(--surface-2);
+      border: 1px solid var(--line-strong);
+      border-radius: 10px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
     }
-    .cycles-layer {
-      z-index: 1;
-    }
-    .cycles-img {
-      width: 100%; height: 100%;
-      object-fit: contain;
-      display: block;
-      pointer-events: none;
-      image-rendering: -webkit-optimize-contrast;
-    }
-    .webgl-layer {
-      z-index: 2;
-      width: 100%; height: 100%;
-      overflow: hidden;
-    }
-    canvas#webgl-canvas {
-      width: 100%; height: 100%;
-      display: block;
-    }
-
-    /* Interactive Draggable Split Bar */
-    .split-divider {
-      position: absolute;
-      top: 0; bottom: 0;
-      width: 3px;
-      background: #38bdf8;
-      z-index: 10;
-      cursor: ew-resize;
-      box-shadow: 0 0 16px rgba(56, 189, 248, 0.8), 0 0 4px #fff;
-      transform: translateX(-50%);
-    }
-    .split-handle {
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      width: 32px; height: 32px;
-      background: #0f172a;
-      border: 2px solid #38bdf8;
-      border-radius: 50%;
+    .menu button {
       display: flex;
       align-items: center;
-      justify-content: center;
-      color: #38bdf8;
-      font-size: 11px;
-      font-weight: 800;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.8), 0 0 12px rgba(56, 189, 248, 0.5);
-      cursor: ew-resize;
-      transition: transform 0.15s ease;
+      gap: 10px;
+      width: 100%;
+      padding: 7px 9px;
+      border-radius: 6px;
+      color: var(--text-muted);
+      text-align: left;
+      font-size: 12px;
     }
-    .split-divider:hover .split-handle {
-      transform: translate(-50%, -50%) scale(1.12);
-    }
+    .menu button::before { content: ""; width: 5px; height: 5px; border-radius: 50%; flex: none; }
+    .menu button:hover, .menu button:focus-visible { background: var(--surface-3); color: var(--text); }
+    .menu button[aria-checked="true"] { color: var(--text); }
+    .menu button[aria-checked="true"]::before { background: var(--accent); }
+    .menu-qual { margin-left: auto; color: var(--text-faint); font-size: 10.5px; }
+    .menu-sep { height: 1px; margin: 5px 7px; background: var(--line); }
 
-    /* Floating Viewport Badges */
-    .vp-tag {
+    .scene-popover { width: 340px; padding: 0; overflow: hidden; }
+    #scene-search {
+      width: 100%;
+      padding: 10px 12px;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      background: transparent;
+      color: var(--text);
+      font-size: 12.5px;
+    }
+    #scene-search::placeholder { color: var(--text-faint); }
+    #scene-search:focus { outline: none; }
+    #scene-list { list-style: none; max-height: min(62vh, 520px); overflow-y: auto; padding: 5px; }
+    #scene-list li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 9px;
+      border-radius: 6px;
+      color: var(--text-muted);
+      font-size: 12px;
+      cursor: pointer;
+    }
+    #scene-list li:hover, #scene-list li.is-active { background: var(--surface-3); color: var(--text); }
+    #scene-list li[aria-selected="true"] .opt-label { color: var(--text); }
+    #scene-list li[aria-selected="true"]::after {
+      content: "";
+      width: 5px; height: 5px;
+      margin-left: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      flex: none;
+    }
+    .opt-index { color: var(--text-faint); font-size: 10.5px; }
+    .opt-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .opt-parity { margin-left: auto; color: var(--text-faint); font-size: 10.5px; }
+    .popover-foot { padding: 6px 12px 8px; border-top: 1px solid var(--line); color: var(--text-faint); font-size: 10px; }
+
+    /* ── Stage ──────────────────────────────────────────────────────────── */
+    .stage {
+      position: relative;
+      display: grid;
+      place-items: center;
+      min-height: 0;
+      overflow: hidden;
+      background: var(--bg);
+    }
+    .stage-frame {
+      position: relative;
+      width: min(100%, calc((100vh - var(--topbar-h)) * 16 / 9));
+      width: min(100%, calc((100dvh - var(--topbar-h)) * 16 / 9));
+      aspect-ratio: 16 / 9;
+      overflow: hidden;
+      background: #000;
+    }
+    .view-layer { position: absolute; inset: 0; }
+    .ref-layer img {
+      display: block;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+    .gl-layer { z-index: 2; }
+    .gl-media { position: absolute; inset: 0; }
+    #webgl-canvas { display: block; width: 100%; height: 100%; }
+    .layer-tag {
       position: absolute;
       bottom: 12px;
-      padding: 4px 10px;
-      border-radius: 6px;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.3px;
+      left: 12px;
+      z-index: 3;
+      padding: 4px 8px;
+      border-radius: 4px;
+      background: rgba(10, 10, 12, 0.62);
+      color: rgba(255, 255, 255, 0.72);
+      font-size: 10.5px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
       pointer-events: none;
-      backdrop-filter: blur(8px);
-      z-index: 5;
+      backdrop-filter: blur(6px);
     }
-    .vp-tag-cycles {
-      left: 12px;
-      background: rgba(15, 23, 42, 0.85);
-      border: 1px solid rgba(56, 189, 248, 0.4);
-      color: #7dd3fc;
-    }
-    .vp-tag-three {
-      right: 12px;
-      background: rgba(15, 23, 42, 0.85);
-      border: 1px solid rgba(16, 185, 129, 0.4);
-      color: #34d399;
-    }
-    .vp-tag-oob {
-      left: 12px;
-      background: rgba(225, 29, 72, 0.85);
-      border: 1px solid #fb7185;
-      color: #fff;
-    }
-    .vp-tag-pass1 {
-      left: 12px;
-      background: rgba(2, 132, 199, 0.85);
-      border: 1px solid #38bdf8;
-      color: #fff;
-    }
-
-    /* Quick Split-Position Buttons Bar */
-    .slider-quick-bar {
-      padding: 8px 16px;
-      background: #0d121e;
-      border-top: 1px solid var(--card-border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 11.5px;
+    .layer-tag-right { left: auto; right: 12px; }
+    .stage-loading {
+      position: absolute;
+      left: 50%;
+      top: 16px;
+      z-index: 8;
+      max-width: 80%;
+      padding: 6px 12px;
+      transform: translateX(-50%);
+      border: 1px solid var(--line-strong);
+      border-radius: 999px;
+      background: rgba(24, 24, 27, 0.85);
       color: var(--text-muted);
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-    .quick-buttons {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .quick-btn {
-      background: #182030;
-      border: 1px solid #29354d;
-      color: #cbd5e1;
-      padding: 3px 8px;
-      border-radius: 4px;
       font-size: 11px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-    .quick-btn:hover {
-      background: #26334d;
-      color: #fff;
-    }
-
-    /* Animation Scrubber (visible when showcase is animated) */
-    .scrubber-panel {
-      padding: 8px 16px;
-      background: #111726;
-      border-top: 1px solid var(--card-border);
-      display: none;
-      align-items: center;
-      gap: 12px;
-    }
-    .scrubber-panel.active {
-      display: flex;
-    }
-    input[type=range] {
-      flex: 1;
-      accent-color: #38bdf8;
-      cursor: pointer;
-    }
-
-    /* Side-by-Side Mode Styling */
-    .viewport-container.side-by-side-mode {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      aspect-ratio: auto;
-      height: 480px;
-    }
-    .viewport-container.side-by-side-mode .split-divider {
-      display: none;
-    }
-    .viewport-container.side-by-side-mode .view-layer {
-      position: relative;
-      clip-path: none !important;
-      width: 100%; height: 100%;
-    }
-    .viewport-container.side-by-side-mode .cycles-layer {
-      border-right: 1px solid var(--card-border);
-    }
-
-    /* Right Stage: Metrics & Telemetry Card */
-    .telemetry-card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 14px;
-      padding: 18px 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6);
-      backdrop-filter: blur(12px);
-    }
-    .tel-header {
-      border-bottom: 1px solid var(--card-border);
-      padding-bottom: 12px;
-    }
-    .tel-badge {
-      display: inline-block;
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      color: #38bdf8;
-      background: rgba(56, 189, 248, 0.12);
-      border: 1px solid rgba(56, 189, 248, 0.3);
-      padding: 2px 7px;
-      border-radius: 4px;
-      margin-bottom: 6px;
-    }
-    .tel-title {
-      font-family: 'Outfit', sans-serif;
-      font-size: 18px;
-      font-weight: 800;
-      color: #ffffff;
-      line-height: 1.3;
-    }
-    .tel-summary {
-      font-size: 12px;
-      line-height: 1.5;
-      color: #94a3b8;
-      margin-top: 4px;
-    }
-
-    /* Parity Comparison Hero Stats */
-    .parity-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-    }
-    .parity-box {
-      background: #0d121e;
-      border: 1px solid #1e2638;
-      border-radius: 10px;
-      padding: 10px 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-    .parity-box.box-mcp {
-      border-color: rgba(16, 185, 129, 0.4);
-      background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(6, 182, 212, 0.08));
-    }
-    .parity-box.box-pass1 {
-      border-color: rgba(56, 189, 248, 0.4);
-      background: rgba(56, 189, 248, 0.05);
-    }
-    .parity-box.box-oob {
-      border-color: rgba(244, 63, 94, 0.3);
-      background: rgba(244, 63, 94, 0.04);
-    }
-    .pb-label {
-      font-size: 9.5px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: #94a3b8;
-    }
-    .box-mcp .pb-label { color: #34d399; }
-    .box-pass1 .pb-label { color: #38bdf8; }
-    .box-oob .pb-label { color: #fb7185; }
-    .pb-val {
-      font-family: 'Outfit', sans-serif;
-      font-size: 24px;
-      font-weight: 900;
-      color: #ffffff;
-    }
-    .box-mcp .pb-val { color: #4ade80; }
-    .box-oob .pb-val { color: #f43f5e; }
-    .pb-sub {
-      font-size: 10px;
-      color: #64748b;
-    }
-
-    /* Secondary Specs List */
-    .specs-list {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      background: #0d121e;
-      border: 1px solid #1e2638;
-      border-radius: 10px;
-      padding: 12px 14px;
-      font-size: 11.5px;
-    }
-    .spec-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .spec-label {
-      color: #94a3b8;
-    }
-    .spec-value {
-      font-weight: 700;
-      color: #e2e8f0;
-    }
-    .spec-value.green { color: #4ade80; }
-
-    /* Technical Bullets Section */
-    .tech-bullets-section {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .tbs-title {
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
-      color: #7dd3fc;
-    }
-    .tbs-list {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .tbs-item {
-      font-size: 11.5px;
-      line-height: 1.45;
-      color: #cbd5e1;
-      display: flex;
-      align-items: flex-start;
-      gap: 6px;
-    }
-    .tbs-cat {
-      font-weight: 700;
-      color: #38bdf8;
-      white-space: nowrap;
-      font-size: 11px;
-    }
-
-    /* Footer */
-    footer {
-      margin-top: 30px;
       text-align: center;
+      backdrop-filter: blur(8px);
+    }
+    .stage-loading.is-error { border-color: var(--accent-line); color: var(--accent); }
+
+    /* ── Split divider ──────────────────────────────────────────────────── */
+    .split-divider {
+      position: absolute;
+      top: 0; bottom: 0; left: 50%;
+      z-index: 6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      transform: translateX(-50%);
+      cursor: ew-resize;
+      touch-action: none;
+    }
+    .split-divider::before {
+      content: "";
+      position: absolute;
+      top: 0; bottom: 0;
+      width: 1px;
+      background: rgba(255, 255, 255, 0.55);
+    }
+    .split-grip {
+      width: 4px;
+      height: 30px;
+      border-radius: 2px;
+      background: rgba(255, 255, 255, 0.72);
+      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.3);
+      transition: background var(--dur) var(--ease), height var(--dur) var(--ease);
+    }
+    .split-divider:hover .split-grip,
+    .split-divider.is-dragging .split-grip,
+    .split-divider:focus-visible .split-grip { height: 40px; background: var(--accent); }
+    .split-divider:focus-visible { outline: none; }
+    .split-divider:focus-visible::before { width: 2px; background: var(--accent); }
+
+    /* ── Side-by-side ───────────────────────────────────────────────────── */
+    .stage-frame.is-side { display: grid; grid-template-columns: 1fr 1fr; }
+    .stage-frame.is-side .view-layer { position: relative; inset: auto; min-width: 0; }
+    .stage-frame.is-side .gl-layer { display: flex; align-items: center; justify-content: center; }
+    .stage-frame.is-side .gl-media { position: relative; inset: auto; width: 100%; aspect-ratio: 16 / 9; }
+
+    /* ── HUD ────────────────────────────────────────────────────────────── */
+    .hud {
+      position: absolute;
+      left: 50%;
+      bottom: 16px;
+      z-index: 9;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      max-width: calc(100% - 32px);
+      padding: 6px 10px;
+      transform: translateX(-50%);
+      border: 1px solid var(--line-strong);
+      border-radius: 999px;
+      background: rgba(24, 24, 27, 0.86);
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+      font-size: 11px;
+      backdrop-filter: blur(10px);
+    }
+    .hud-btn {
+      display: inline-grid;
+      place-items: center;
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      color: var(--text-muted);
       font-size: 12px;
-      color: #64748b;
     }
-    footer a {
-      color: #38bdf8;
-      text-decoration: none;
+    .hud-btn:hover { background: var(--surface-3); color: var(--text); }
+    .hud-btn.is-active { color: var(--accent); }
+    #anim-slider { width: 150px; accent-color: var(--accent); }
+    .hud .mono { color: var(--text-muted); white-space: nowrap; }
+    #fps-counter { color: var(--text-faint); }
+
+    /* ── Inspector ──────────────────────────────────────────────────────── */
+    .inspector {
+      position: fixed;
+      top: var(--topbar-h);
+      right: 0;
+      bottom: 0;
+      z-index: 45;
+      width: var(--drawer-w);
+      padding: 18px 20px 32px;
+      overflow-y: auto;
+      background: var(--surface);
+      border-left: 1px solid var(--line);
+      transform: translateX(101%);
+      transition: transform 220ms var(--ease);
     }
-    footer a:hover {
-      text-decoration: underline;
+    body.drawer-open .inspector { transform: none; }
+    .inspector::-webkit-scrollbar { width: 8px; }
+    .inspector::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 4px; }
+    .insp-head { padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+    .insp-head-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+    .badge { color: var(--accent); font-size: 10px; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase; }
+    #inspector-title { margin-bottom: 6px; font-size: 17px; font-weight: 600; letter-spacing: -0.01em; }
+    #inspector-summary { color: var(--text-muted); font-size: 12px; }
+    .insp-section { padding: 16px 0; border-bottom: 1px solid var(--line); }
+    .insp-section h3 {
+      margin-bottom: 10px;
+      color: var(--text-faint);
+      font-size: 10.5px;
+      font-weight: 600;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+    }
+    .parity-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .parity-cell { padding: 9px; border: 1px solid var(--line); border-radius: 7px; background: var(--surface-2); }
+    .parity-cell span { display: block; margin-bottom: 5px; color: var(--text-faint); font-size: 9.5px; letter-spacing: 0.05em; text-transform: uppercase; }
+    .parity-cell strong { display: block; font-size: 14px; font-weight: 600; }
+    .parity-cell small { display: block; margin-top: 3px; color: var(--text-faint); font-size: 10px; }
+    .parity-cell.is-accent strong { color: var(--accent); }
+    .spec-list { display: grid; gap: 7px; }
+    .spec-list div { display: flex; justify-content: space-between; gap: 12px; font-size: 11.5px; }
+    .spec-list dt { color: var(--text-muted); }
+    .spec-list dd { color: var(--text); }
+    .spec-list div:last-child dd { color: var(--accent); }
+    .bullets { display: grid; gap: 11px; list-style: none; }
+    .bullets li { color: var(--text-muted); font-size: 11.5px; line-height: 1.5; }
+    .bullets .b-cat { display: block; margin-bottom: 2px; color: var(--text); font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+    .insp-about p { margin-bottom: 10px; color: var(--text-muted); font-size: 11.5px; }
+    .stats { display: grid; gap: 6px; margin-bottom: 12px; list-style: none; }
+    .stats li { display: flex; justify-content: space-between; gap: 12px; color: var(--text-muted); font-size: 11px; }
+    .stats li span:last-child { color: var(--text); }
+    #inspector-repo { font-size: 11.5px; }
+
+    /* ── Responsive ─────────────────────────────────────────────────────── */
+    @media (max-width: 900px) {
+      :root { --drawer-w: 100vw; }
+      #tb-parity, #tb-size { display: none; }
+      .menu, .scene-popover {
+        position: fixed;
+        top: calc(var(--topbar-h) + 6px);
+        left: 8px;
+        right: 8px;
+        width: auto;
+        min-width: 0;
+      }
+    }
+    @media (max-width: 600px) {
+      #wordmark-text { display: none; }
+      .tb-control { max-width: 32vw; padding: 0 8px; }
+      #view-menu-qualifier { display: none; }
+      #fps-counter { display: none; }
+      #anim-slider { width: 100px; }
+      .layer-tag { display: none; }
+    }
+    /* Portrait: keep the 16:9 staging area readable instead of letting it float. */
+    @media (max-aspect-ratio: 1/1) {
+      .stage { background: #0d0d10; }
+      .stage-frame { box-shadow: 0 0 0 1px var(--line); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
     }
   </style>
 
@@ -648,157 +430,128 @@
 </head>
 <body>
 
-  <!-- Header -->
-  <header>
-    <div class="header-logo-row">
-      <h1>🎬 Blender2Three-MCP — Unified Visual Parity Showcase</h1>
+  <header class="topbar" id="topbar">
+    <a class="wordmark" href="https://github.com/oh-codes/Blender2Threejs-MCP" target="_blank" rel="noreferrer" aria-label="Blender2Three-MCP on GitHub">
+      <span class="wordmark-mark">B2T</span>
+      <span id="wordmark-text">Blender2Three-MCP</span>
+    </a>
+
+    <div class="tb-menus">
+      <div class="tb-menu-wrap">
+        <button id="scene-picker-btn" class="tb-control" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="scene-popover" aria-label="Choose a showcase">
+          <span id="scene-index" class="idx mono">00</span>
+          <span id="scene-label" class="tb-label">Loading…</span>
+          <span class="chev" aria-hidden="true"></span>
+        </button>
+        <div id="scene-popover" class="menu scene-popover" hidden>
+          <input id="scene-search" type="search" role="combobox" aria-expanded="true" aria-controls="scene-list" aria-autocomplete="list" placeholder="Search scenes…" autocomplete="off" spellcheck="false">
+          <ul id="scene-list" role="listbox" aria-label="Showcases"></ul>
+          <div class="popover-foot">↑↓ navigate · ↵ select · Esc close</div>
+        </div>
+      </div>
+
+      <div class="tb-menu-wrap">
+        <button id="view-menu-btn" class="tb-control" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="view-menu">
+          <span id="view-menu-label" class="tb-label">Cycles ↔ WebGL</span>
+          <span id="view-menu-qualifier" class="qual">Split</span>
+          <span class="chev" aria-hidden="true"></span>
+        </button>
+        <div id="view-menu" class="menu" role="menu" hidden>
+          <button type="button" role="menuitemradio" data-view="split-cycles" aria-checked="true">Cycles ↔ WebGL <span class="menu-qual">Split</span></button>
+          <button type="button" role="menuitemradio" data-view="split-oob" aria-checked="false">OOB ↔ WebGL <span class="menu-qual">Split</span></button>
+          <button type="button" role="menuitemradio" data-view="split-pass1" aria-checked="false">Pass 1 ↔ WebGL <span class="menu-qual">Split</span></button>
+          <div class="menu-sep" role="separator"></div>
+          <button type="button" role="menuitemradio" data-view="side-cycles" aria-checked="false">Cycles | WebGL <span class="menu-qual">Side by side</span></button>
+          <button type="button" role="menuitemradio" data-view="ref-only" aria-checked="false">Reference only</button>
+          <button type="button" role="menuitemradio" data-view="webgl-only" aria-checked="false">WebGL only</button>
+        </div>
+      </div>
     </div>
-    <p class="subtitle">
-      Automated pipeline translating complex Blender Cycles scenes into high-performance Three.js WebGL with sub-pixel visual parity, AgX tone mapping, and Draco geometry compression.
-    </p>
-    <div class="global-badges">
-      <span class="pill pill-green">Parity Delta: 67.3% → 95.5%</span>
-      <span class="pill pill-gold">Draco Compression: Up to 95.2%</span>
-      <span class="pill">Blender Cycles AgX vs WebGL 60FPS</span>
-      <span class="pill">14 Standalone Benchmark Labs</span>
-    </div>
+
+    <div class="tb-spacer"></div>
+    <span id="tb-parity" class="tb-metric mono" title="2nd-pass deliverable parity vs Cycles">—</span>
+    <span id="tb-size" class="tb-metric mono" title="Draco / Meshopt GLB size">—</span>
+    <button id="drawer-toggle" class="tb-icon-btn" type="button" aria-label="Toggle inspector" aria-expanded="false" aria-controls="inspector">ⓘ</button>
   </header>
 
-  <!-- Showcase Selector Bar (Bender Grand Finale #1 at the front!) -->
-  <div class="switcher-container">
-    <div class="switcher-bar" id="switcher-bar">
-      <!-- Populated dynamically via JS -->
-    </div>
-  </div>
-
-  <!-- Main Stage Layout: Left Viewer + Right Telemetry -->
-  <div class="app-stage">
-
-    <!-- Left Stage: Interactive Comparison Viewer -->
-    <div class="viewer-card">
-      <div class="viewer-header">
-        <div class="viewer-title-group">
-          <span class="viewer-title" id="active-showcase-title">00. 🎬 Grand Finale: Bender's Asset Fountain</span>
-        </div>
-        <div class="viewer-toolbar">
-          <button class="btn" id="btn-toggle-view">🔀 Side-by-Side</button>
-          <button class="btn" id="btn-reset-cam">🔄 Reset Camera</button>
-          <span id="load-status" style="font-size: 11px; color: #94a3b8;">Loading...</span>
-        </div>
+  <main class="stage" id="stage">
+    <div class="stage-frame" id="stage-frame" data-mode="split-cycles" data-loaded="0">
+      <div class="view-layer ref-layer" id="ref-layer">
+        <img id="ref-img" alt="">
+        <span class="layer-tag" id="ref-tag">Cycles AgX</span>
       </div>
-
-      <!-- Stage Comparison Selector Bar -->
-      <div class="stage-nav-bar">
-        <span class="stage-nav-label">Comparison Stage:</span>
-        <div class="stage-buttons" id="stage-buttons">
-          <button class="stage-btn active" data-stage="cycles">📸 Cycles Ground Truth</button>
-          <button class="stage-btn" data-stage="oob">📦 Stock Blender OOB</button>
-          <button class="stage-btn" data-stage="pass1">⚙️ 1st Pass MCP</button>
-          <button class="stage-btn" data-stage="pass2">🎮 2nd Pass Deliverable (Live 3D)</button>
-        </div>
+      <div class="view-layer gl-layer" id="gl-layer">
+        <div class="gl-media" id="gl-media"><canvas id="webgl-canvas"></canvas></div>
+        <span class="layer-tag layer-tag-right" id="gl-tag">Three.js WebGL</span>
       </div>
-
-      <!-- 16:9 Viewport Box -->
-      <div class="viewport-container" id="viewport-box">
-        <!-- Layer 1: Cycles Ground Truth Reference -->
-        <div class="view-layer cycles-layer">
-          <img class="cycles-img" id="cycles-ref-img" src="" alt="Cycles Ground Truth">
-          <div class="vp-tag vp-tag-cycles" id="vp-tag-ref">Blender Cycles AgX (Ground Truth)</div>
-        </div>
-
-        <!-- Layer 2: Live Three.js WebGL Canvas (Clipped by Split-Slider) -->
-        <div class="view-layer webgl-layer" id="webgl-layer">
-          <canvas id="webgl-canvas" width="1280" height="720"></canvas>
-          <div class="vp-tag vp-tag-three">Three.js WebGL (60 FPS Realtime)</div>
-        </div>
-
-        <!-- Interactive Draggable Divider -->
-        <div class="split-divider" id="split-divider" style="left: 50%;">
-          <div class="split-handle">◀ ▶</div>
-        </div>
+      <div id="split-divider" class="split-divider" role="separator" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" aria-label="Comparison split position" tabindex="0">
+        <span class="split-grip" aria-hidden="true"></span>
       </div>
-
-      <!-- Quick Slider Buttons -->
-      <div class="slider-quick-bar">
-        <span>Drag center divider to compare Reference (left) vs 2nd Pass WebGL (right)</span>
-        <div class="quick-buttons">
-          <button class="quick-btn" onclick="setSplitPercent(0)">Reference (100%)</button>
-          <button class="quick-btn" onclick="setSplitPercent(25)">25%</button>
-          <button class="quick-btn" onclick="setSplitPercent(50)">Split (50%)</button>
-          <button class="quick-btn" onclick="setSplitPercent(75)">75%</button>
-          <button class="quick-btn" onclick="setSplitPercent(100)">WebGL (100%)</button>
-        </div>
-      </div>
-
-      <!-- Scrubber Panel (for animated scenes) -->
-      <div class="scrubber-panel" id="scrubber-panel">
-        <button class="btn" id="btn-play-pause">⏸ Pause</button>
-        <span style="font-size: 11.5px; font-weight: 700; color: #94a3b8; min-width: 48px;" id="frame-counter">F: 160</span>
-        <input type="range" id="anim-slider" min="1" max="180" value="160" step="1">
-        <span style="font-size: 11px; color: #64748b;" id="time-counter">6.67s</span>
+      <div id="stage-loading" class="stage-loading" role="status" aria-live="polite">Loading…</div>
+      <div class="hud" id="hud" role="group" aria-label="Playback" hidden>
+        <button id="btn-play-pause" class="hud-btn" type="button" aria-label="Play">▶</button>
+        <span id="frame-counter" class="mono">F 1</span>
+        <input id="anim-slider" type="range" min="1" max="180" value="1" step="1" aria-label="Animation frame">
+        <span id="time-counter" class="mono">0.00s</span>
+        <span id="fps-counter" class="mono" aria-hidden="true">– fps</span>
+        <button id="btn-reset-cam" class="hud-btn" type="button" aria-label="Reset camera">⟲</button>
       </div>
     </div>
+  </main>
 
-    <!-- Right Stage: Metrics, Telemetry & What Was Reworked -->
-    <div class="telemetry-card">
-      <div class="tel-header">
-        <span class="tel-badge" id="tel-badge">Flagship Showcase</span>
-        <div class="tel-title" id="tel-title">Grand Finale: Bender's Asset Fountain</div>
-        <p class="tel-summary" id="tel-summary">46-joint rig, -145° horizontal door swing, 14 synchronized actions, thin-film soap bubbles, 3D text wordplay.</p>
+  <aside id="inspector" class="inspector" aria-labelledby="inspector-title" aria-hidden="true" inert>
+    <header class="insp-head">
+      <div class="insp-head-top">
+        <span id="inspector-badge" class="badge"></span>
+        <button id="inspector-close" class="tb-icon-btn" type="button" aria-label="Close inspector">×</button>
       </div>
+      <h2 id="inspector-title"></h2>
+      <p id="inspector-summary"></p>
+    </header>
 
-      <!-- Three-Tier Parity & Timing Progression Grid -->
+    <section class="insp-section" aria-labelledby="insp-parity-h">
+      <h3 id="insp-parity-h">Parity progression</h3>
       <div class="parity-grid">
-        <div class="parity-box box-oob">
-          <span class="pb-label">Stock OOB Baseline</span>
-          <span class="pb-val" id="val-oob">82.00%</span>
-          <span class="pb-sub" id="time-oob">⏱️ 4.2s (Vanilla glTF)</span>
+        <div class="parity-cell">
+          <span>Stock OOB</span>
+          <strong id="insp-oob" class="mono">—</strong>
+          <small id="insp-oob-sub" class="mono"></small>
         </div>
-        <div class="parity-box box-pass1">
-          <span class="pb-label">1st Pass MCP</span>
-          <span class="pb-val" id="val-pass1">89.40%</span>
-          <span class="pb-sub" id="time-pass1">⏱️ 18.5s (+7.4% tool gain)</span>
+        <div class="parity-cell">
+          <span>1st Pass MCP</span>
+          <strong id="insp-pass1" class="mono">—</strong>
+          <small id="insp-pass1-sub" class="mono"></small>
         </div>
-        <div class="parity-box box-mcp">
-          <span class="pb-label">2nd Pass Deliverable</span>
-          <span class="pb-val" id="val-mcp">95.23%</span>
-          <span class="pb-sub" id="val-mae">⏱️ 64.2s (2 iter • MAE: 4.77%)</span>
-        </div>
-      </div>
-
-      <!-- Bandwidth & Geometry Specs -->
-      <div class="specs-list">
-        <div class="spec-item">
-          <span class="spec-label">Raw glTF Bandwidth</span>
-          <span class="spec-value" id="val-raw">51.65 MB</span>
-        </div>
-        <div class="spec-item">
-          <span class="spec-label">Draco / Meshopt GLB</span>
-          <span class="spec-value green" id="val-opt">2.49 MB</span>
-        </div>
-        <div class="spec-item">
-          <span class="spec-label">Bandwidth Reduction</span>
-          <span class="spec-value green" id="val-reduct">95.17% Size Reduction</span>
+        <div class="parity-cell is-accent">
+          <span>2nd Pass</span>
+          <strong id="insp-pass2" class="mono">—</strong>
+          <small id="insp-pass2-sub" class="mono"></small>
         </div>
       </div>
+    </section>
 
-      <!-- Structured Technical Solutions -->
-      <div class="tech-bullets-section">
-        <div class="tbs-title">Key Pipeline Solutions & Rework</div>
-        <ul class="tbs-list" id="tbs-list">
-          <!-- Populated dynamically via JS -->
-        </ul>
-      </div>
-    </div>
+    <section class="insp-section" aria-labelledby="insp-size-h">
+      <h3 id="insp-size-h">Bandwidth</h3>
+      <dl class="spec-list">
+        <div><dt>Raw glTF</dt><dd id="insp-raw" class="mono">—</dd></div>
+        <div><dt>Draco / Meshopt GLB</dt><dd id="insp-opt" class="mono">—</dd></div>
+        <div><dt>Reduction</dt><dd id="insp-reduction" class="mono">—</dd></div>
+      </dl>
+    </section>
 
-  </div>
+    <section class="insp-section" aria-labelledby="insp-bullets-h">
+      <h3 id="insp-bullets-h">Key pipeline solutions</h3>
+      <ul id="inspector-bullets" class="bullets"></ul>
+    </section>
 
-  <!-- Footer -->
-  <footer>
-    <p>Blender2Three-MCP • Open-source pipeline for Blender to Three.js parity • <a href="https://github.com/oh-codes/Blender2Threejs-MCP" target="_blank">View GitHub Repository</a></p>
-  </footer>
+    <section class="insp-section insp-about" aria-labelledby="insp-about-h">
+      <h3 id="insp-about-h">About</h3>
+      <p id="inspector-description"></p>
+      <ul id="inspector-stats" class="stats"></ul>
+      <a id="inspector-repo" href="" target="_blank" rel="noreferrer">View GitHub repository ↗</a>
+    </section>
+  </aside>
 
-  <!-- Master JavaScript Application -->
   <script type="module">
     import * as THREE from 'three';
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -806,472 +559,424 @@
     import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
     import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-    // 14 Complete Showcases Catalog (Bender Grand Finale #1!)
-    const SHOWCASES = {
-      bender_cinematic: {
-        id: "bender_cinematic",
-        name: "00. 🎬 Bender Grand Finale",
-        badge: "Flagship Cinematic Showcase",
-        glb: "assets/bender_cinematic/bender_cinematic.glb",
-        ref: "assets/bender_cinematic/cycles_reference.png",
-        camPos: [0.0, 4.0, 14.5],
-        camTarget: [0.0, 2.3, 0.0],
-        fov: 45.75,
-        oobParity: "82.0%",
-        oobTime: "4.2s",
-        pass1Parity: "89.40%",
-        pass1Time: "18.5s",
-        pass2Time: "64.2s",
-        iterations: "2 iter",
-        mcpParity: "95.23%",
-        mae: "4.77%",
-        rawSize: "51.65 MB",
-        optSize: "2.49 MB",
-        reduction: "95.17%",
-        summary: "46-joint rig, -145° horizontal door swing, 14 synchronized actions, thin-film soap bubbles, 3D text wordplay marquee.",
-        bullets: [
-          { cat: "Rigging", text: "46-joint armature with 100% rigid component bone weighting, zero mesh tearing, vertical Y-hinge door swing." },
-          { cat: "Materials", text: "41 PBR materials: thin-film iridescence, Cauchy dispersion glass, viscous goo volume absorption, titanium unibody." },
-          { cat: "Kinematics", text: "14 synchronized animation tracks (135-channel Bender choreography, crate lid unlatch, 6 parabolic fountain arcs)." },
-          { cat: "Wordplay", text: "9.3m background 3D title 'Blender2Three.js' with the letter 'l' in radiant amber/gold revealing the 'Bender' inside." }
-        ],
-        animated: true,
-        defaultFrame: 160,
-        maxFrame: 180
-      },
-      glass_lab: {
-        id: "glass_lab",
-        name: "01. 💎 Optical Glass & Volume",
-        badge: "Refractive Transmission & Attenuation",
-        glb: "assets/glass_lab/glass_lab.glb",
-        ref: "assets/glass_lab/cycles_reference.png",
-        camPos: [0.0, 2.8, 6.2],
-        camTarget: [0.0, 1.2, 0.0],
-        fov: 38.0,
-        oobParity: "72.4%",
-        oobTime: "1.1s",
-        pass1Parity: "88.20%",
-        pass1Time: "6.4s",
-        pass2Time: "28.1s",
-        iterations: "1 iter",
-        mcpParity: "95.80%",
-        mae: "4.20%",
-        rawSize: "1.84 MB",
-        optSize: "412 KB",
-        reduction: "77.6%",
-        summary: "Physical glass transmission with volume absorption distance, attenuation color, Cauchy dispersion, and high-frequency caustics.",
-        bullets: [
-          { cat: "Transmission", text: "KHR_materials_transmission (transmission: 0.98, roughness: 0.02, IOR: 1.52) with background refraction pass." },
-          { cat: "Volume", text: "KHR_materials_volume attenuation color (#06b6d4) with physical thicknessFactor and absorption falloff." },
-          { cat: "Dispersion", text: "Simulated spectral chromatic aberration across faceted crystal geometry." },
-          { cat: "AgX Parity", text: "Sub-pixel specular highlight roll-off matching Cycles AgX base contrast." }
-        ]
-      },
-      material_lab: {
-        id: "material_lab",
-        name: "02. 🪞 Advanced PBR & Mirrors",
-        badge: "Clearcoat, Sheen & CubeCamera",
-        glb: "assets/material_lab/material_lab.glb",
-        ref: "assets/material_lab/cycles_reference.png",
-        camPos: [0.0, 2.5, 5.8],
-        camTarget: [0.0, 1.0, 0.0],
-        fov: 40.0,
-        oobParity: "76.5%",
-        oobTime: "1.3s",
-        pass1Parity: "89.10%",
-        pass1Time: "5.8s",
-        pass2Time: "32.0s",
-        iterations: "1 iter",
-        mcpParity: "96.40%",
-        mae: "3.60%",
-        rawSize: "2.15 MB",
-        optSize: "480 KB",
-        reduction: "77.7%",
-        summary: "Multi-layer clearcoat, microfiber sheen scattering, emissive strength scaling, and real-time CubeCamera reflections.",
-        bullets: [
-          { cat: "Clearcoat", text: "Dual-layer automotive lacquer clearcoat (clearcoat: 1.0, clearcoatRoughness: 0.04) over metallic flake." },
-          { cat: "Sheen", text: "Charlie sheen BRDF for velvet microfiber rim lighting and grazing-angle backscattering." },
-          { cat: "Reflections", text: "Real-time 6-sided CubeCamera reflection probes capturing inter-object specular bounces." },
-          { cat: "Emissive", text: "KHR_materials_emissive_strength for HDR radiance without tone-mapping wash." }
-        ]
-      },
-      lighting_lab: {
-        id: "lighting_lab",
-        name: "03. 💡 Punctual Lights & Shadows",
-        badge: "Spotlight Cones & PCF Soft Shadows",
-        glb: "assets/lighting_lab/lighting_lab.glb",
-        ref: "assets/lighting_lab/cycles_reference.png",
-        camPos: [0.0, 3.2, 7.0],
-        camTarget: [0.0, 1.0, 0.0],
-        fov: 42.0,
-        oobParity: "81.2%",
-        oobTime: "0.9s",
-        pass1Parity: "89.60%",
-        pass1Time: "4.5s",
-        pass2Time: "24.5s",
-        iterations: "1 iter",
-        mcpParity: "94.70%",
-        mae: "5.30%",
-        rawSize: "940 KB",
-        optSize: "215 KB",
-        reduction: "77.1%",
-        summary: "KHR_lights_punctual translation with accurate spot cone angle, spot blend falloff, and PCF soft shadow cascades.",
-        bullets: [
-          { cat: "Spotlights", text: "Exact cone angle and blend translation matching Blender's spot_size and spot_blend." },
-          { cat: "Inverse-Square", text: "Physical quadratic distance decay with lumen-to-candela power calibration." },
-          { cat: "Shadows", text: "PCFSoftShadowMap with calibrated shadow bias eliminating shadow acne and peter-panning." },
-          { cat: "Three-Point", text: "Studio 3-point key, fill, and rim rig with color-managed spectral temperature." }
-        ]
-      },
-      procedural_lab: {
-        id: "procedural_lab",
-        name: "04. 🎨 Procedural Shader Baking",
-        badge: "Automated 4-Pass Cycles Baking",
-        glb: "assets/procedural_lab/procedural_lab.glb",
-        ref: "assets/procedural_lab/cycles_reference.png",
-        camPos: [0.0, 2.4, 5.5],
-        camTarget: [0.0, 1.0, 0.0],
-        fov: 40.0,
-        oobParity: "10.40%",
-        oobTime: "1.5s",
-        pass1Parity: "86.50%",
-        pass1Time: "22.4s",
-        pass2Time: "58.0s",
-        iterations: "2 iter",
-        mcpParity: "95.10%",
-        mae: "4.90%",
-        rawSize: "14.80 MB",
-        optSize: "1.85 MB",
-        reduction: "87.50%",
-        summary: "Bakes procedural Voronoi, Noise, and Musgrave nodes into channel-packed ORM PBR maps and tangent normal maps.",
-        bullets: [
-          { cat: "Baking", text: "Automated headless 4-pass Cycles bake (BaseColor, Roughness, Metallic, Normal)." },
-          { cat: "Channel Packing", text: "Packed ORM image maps (Red = AO, Green = Roughness, Blue = Metalness) saving 66% texture bandwidth." },
-          { cat: "Normal Maps", text: "High-precision tangent space normal map derived from procedural 3D heightfields." },
-          { cat: "UV Mapping", text: "Automatic smart UV projection ensuring non-overlapping texel density." }
-        ]
-      },
-      animation_lab: {
-        id: "animation_lab",
-        name: "05. ⚙️ Rigging, Skinning & Gyro",
-        badge: "Armatures, Morph Keys & Hierarchies",
-        glb: "assets/animation_lab/animation_lab.glb",
-        ref: "assets/animation_lab/cycles_reference.png",
-        camPos: [0.0, 2.6, 6.0],
-        camTarget: [0.0, 1.2, 0.0],
-        fov: 42.0,
-        oobParity: "83.80%",
-        oobTime: "1.2s",
-        pass1Parity: "91.00%",
-        pass1Time: "6.2s",
-        pass2Time: "31.2s",
-        iterations: "1 iter",
-        mcpParity: "96.20%",
-        mae: "3.80%",
-        rawSize: "1.79 MB",
-        optSize: "264 KB",
-        reduction: "85.28%",
-        summary: "Multi-bone armature skinning, glTF shape key morph targets, and nested multi-axis gyro rotational hierarchies.",
-        bullets: [
-          { cat: "Skinning", text: "Linear blend skinning with normalized vertex group weights and bone transform matrices." },
-          { cat: "Morph Targets", text: "glTF morph target position/normal deltas with animated track channels." },
-          { cat: "Gyro Hierarchy", text: "Nested 3-axis gimbal ring rotation preserving Euler rotation order and zero gimbal lock." },
-          { cat: "AnimationMixer", text: "Precise frame seeking and seamless looping in Three.js runtime." }
-        ],
-        animated: true,
-        defaultFrame: 30,
-        maxFrame: 60
-      },
-      iridescence_lab: {
-        id: "iridescence_lab",
-        name: "06. 🫧 Iridescence Soap Bubbles",
-        badge: "Wave Interference & Anisotropy",
-        glb: "assets/iridescence_lab/iridescence_lab.glb",
-        ref: "assets/iridescence_lab/cycles_reference.png",
-        camPos: [0.0, 2.2, 5.2],
-        camTarget: [0.0, 1.1, 0.0],
-        fov: 38.0,
-        oobParity: "68.0%",
-        oobTime: "1.4s",
-        pass1Parity: "87.50%",
-        pass1Time: "7.0s",
-        pass2Time: "36.5s",
-        iterations: "2 iter",
-        mcpParity: "95.50%",
-        mae: "4.50%",
-        rawSize: "3.42 MB",
-        optSize: "684 KB",
-        reduction: "80.0%",
-        summary: "Thin-film wave interference diffraction creating rainbow color fringes on soap bubbles and brushed metallic anisotropy.",
-        bullets: [
-          { cat: "Iridescence", text: "KHR_materials_iridescence (thickness: 100-480nm, IOR: 1.33) producing physical color diffraction." },
-          { cat: "Anisotropy", text: "KHR_materials_anisotropy for elongated specular highlights on brushed stainless steel." },
-          { cat: "Transmission", text: "Ultra-thin dielectric membrane with 98% transmission and zero shadow occlusion." },
-          { cat: "Clearcoat", text: "Secondary reflection layer augmenting iridescent film depth." }
-        ]
-      },
-      foliage_lab: {
-        id: "foliage_lab",
-        name: "07. 🌿 Alpha Foliage & Decals",
-        badge: "Mask vs Blend & Decal Anti-Z-Fighting",
-        glb: "assets/foliage_lab/foliage_lab.glb",
-        ref: "assets/foliage_lab/cycles_reference.png",
-        camPos: [0.0, 3.0, 8.5],
-        camTarget: [0.0, 1.2, 0.0],
-        fov: 29.84,
-        bgColor: 0x737a8c,
-        oobParity: "74.30%",
-        oobTime: "1.4s",
-        pass1Parity: "86.10%",
-        pass1Time: "7.2s",
-        pass2Time: "38.4s",
-        iterations: "2 iter",
-        mcpParity: "94.80%",
-        mae: "5.20%",
-        rawSize: "4.88 MB",
-        optSize: "890 KB",
-        reduction: "81.76%",
-        summary: "Alpha test cutoff masking, double-sided depth sorting, custom shadow depth materials, and decal polygon offsetting.",
-        bullets: [
-          { cat: "Alpha Modes", text: "alphaMode MASK with calibrated alphaCutoff (0.5) preventing sorting artifacts." },
-          { cat: "Shadow Cutouts", text: "customDepthMaterial with alpha discard enabling leaves to cast realistic perforated shadows." },
-          { cat: "Decals", text: "PolygonOffset material parameters preventing z-fighting on floor decals." },
-          { cat: "Double-Sided", text: "Double-sided normal orientation matching Cycles two-sided leaf rendering." }
-        ]
-      },
-      instancing_lab: {
-        id: "instancing_lab",
-        name: "08. ⚡ GPU Instancing Array",
-        badge: "180 Instances in 1 Single Draw Call",
-        glb: "assets/instancing_lab/instancing_lab.glb",
-        ref: "assets/instancing_lab/cycles_reference.png",
-        camPos: [0.0, 5.0, 11.0],
-        camTarget: [0.0, 1.5, 0.0],
-        fov: 45.0,
-        oobParity: "79.0%",
-        oobTime: "1.6s",
-        pass1Parity: "92.40%",
-        pass1Time: "8.1s",
-        pass2Time: "26.8s",
-        iterations: "1 iter",
-        mcpParity: "97.10%",
-        mae: "2.90%",
-        rawSize: "8.92 MB",
-        optSize: "1.03 MB",
-        reduction: "88.4%",
-        summary: "EXT_mesh_gpu_instancing collapses 180 linked hexagonal pillars into 1 single draw call with per-instance TRS buffers.",
-        bullets: [
-          { cat: "Draw Calls", text: "180 individual mesh objects collapsed into 1 single WebGL draw call (180:1 ratio)." },
-          { cat: "Instancing Buffer", text: "Packed TRANSLATION, ROTATION, and SCALE attribute buffers compressed with Draco." },
-          { cat: "Shadows", text: "Full instanced shadow cascades rendered efficiently in a single shadow pass." },
-          { cat: "Performance", text: "60 FPS steady performance even on low-power mobile GPUs." }
-        ]
-      },
-      multi_material_lab: {
-        id: "multi_material_lab",
-        name: "09. 🖥️ Multi-Material Cyber Deck",
-        badge: "Multi-Material Primitives & Dual UVs",
-        glb: "assets/multi_material_lab/multi_material_lab.glb",
-        ref: "assets/multi_material_lab/cycles_reference.png",
-        camPos: [0.0, 1.8, 3.8],
-        camTarget: [0.0, 0.8, 0.0],
-        fov: 38.0,
-        oobParity: "81.0%",
-        oobTime: "0.7s",
-        pass1Parity: "90.20%",
-        pass1Time: "3.9s",
-        pass2Time: "21.0s",
-        iterations: "1 iter",
-        oobTime: "1.3s",
-        pass1Parity: "89.10%",
-        pass1Time: "5.8s",
-        pass2Time: "32.0s",
-        iterations: "1 iter",
-        mcpParity: "95.90%",
-        mae: "4.10%",
-        rawSize: "72.3 KB",
-        optSize: "16.6 KB",
-        reduction: "77.0%",
-        summary: "Partitioned multi-material primitives sharing dual UV sets (TEXCOORD_0 for PBR, TEXCOORD_1 for Lightmap/AO) across Draco.",
-        bullets: [
-          { cat: "Multi-Material", text: "Single master mesh partitioned into 4 discrete material primitives without vertex duplication." },
-          { cat: "Dual UVs", text: "Preservation of TEXCOORD_0 and TEXCOORD_1 across Draco compression for secondary aoMap channel." },
-          { cat: "Decoupled Shadows", text: "Transmissive glass visor castShadow set to false, allowing screen emission to pass unobstructed." },
-          { cat: "Emissive HUD", text: "Backlit buttons and HUD visor emitting sharp, un-clipped glow." }
-        ]
-      },
-      lod_lab: {
-        id: "lod_lab",
-        name: "10. 🗼 Sentinel Tower LOD",
-        badge: "Hierarchical LOD & Meshopt Compression",
-        glb: "assets/lod_lab/lod_lab.glb",
-        ref: "assets/lod_lab/cycles_reference.png",
-        camPos: [0.0, 2.5, 6.8],
-        camTarget: [0.0, 1.4, 0.0],
-        fov: 40.0,
-        oobParity: "78.20%",
-        oobTime: "0.8s",
-        pass1Parity: "88.90%",
-        pass1Time: "4.8s",
-        pass2Time: "25.2s",
-        iterations: "1 iter",
-        mcpParity: "95.10%",
-        mae: "4.90%",
-        rawSize: "376.5 KB",
-        optSize: "122.7 KB",
-        reduction: "67.41%",
-        summary: "3-tier distance LOD hierarchy (11.1k → 2.7k → 538 tris) with EXT_meshopt_compression and automatic runtime switching.",
-        bullets: [
-          { cat: "LOD Levels", text: "Seamless distance thresholds (0m → 10m → 20m) with automatic triangle decimation." },
-          { cat: "Meshopt", text: "EXT_meshopt_compression integrated with MeshoptDecoder for fast, parallel GPU unpacking." },
-          { cat: "Multi-Primitive", text: "LOD containers properly assembled from multi-material groups without parent detachment bugs." },
-          { cat: "Silhouette", text: "Round plasma dome and cooling fin silhouettes preserved across all view distances." }
-        ]
-      },
-      volumetric_lab: {
-        id: "volumetric_lab",
-        name: "11. ⛪ Gothic Sacred Relic Shrine",
-        badge: "Atmospheric Raymarching Volume",
-        glb: "assets/volumetric_lab/volumetric_lab.glb",
-        ref: "assets/volumetric_lab/cycles_reference.png",
-        camPos: [0.0, 2.6, 6.5],
-        camTarget: [0.0, 1.2, 0.0],
-        fov: 42.0,
-        oobParity: "14.80%",
-        oobTime: "1.8s",
-        pass1Parity: "82.50%",
-        pass1Time: "9.1s",
-        pass2Time: "72.0s",
-        iterations: "3 iter",
-        mcpParity: "93.30%",
-        mae: "6.70%",
-        rawSize: "1.12 MB",
-        optSize: "260 KB",
-        reduction: "76.79%",
-        summary: "48-step screen-space raymarching volume with Henyey-Greenstein Mie scattering and analytical window mullion shadow slicing.",
-        bullets: [
-          { cat: "Raymarching", text: "48-step volumetric box raymarcher with screen-space dither noise preventing color banding." },
-          { cat: "Phase Function", text: "Physical Henyey-Greenstein Mie forward scattering (g=0.35) matching Cycles atmospheric fog." },
-          { cat: "Shadow Slicing", text: "Analytical shadow projection for 5 vertical iron mullion window bars at X=-6.5." },
-          { cat: "Mood", text: "Cinematic Gothic mood calibrated with 0.75 AgX exposure and 0.12 ambient floor bounce." }
-        ]
-      },
-      skinning_lab: {
-        id: "skinning_lab",
-        name: "12. 🤖 Articulated Mecha Sentinel",
-        badge: "11-Bone Rig & Action Crossfading",
-        glb: "assets/skinning_lab/skinning_lab.glb",
-        ref: "assets/skinning_lab/cycles_reference.png",
-        camPos: [0.0, 2.2, 5.0],
-        camTarget: [0.0, 1.2, 0.0],
-        fov: 40.0,
-        oobParity: "75.10%",
-        oobTime: "0.8s",
-        pass1Parity: "89.50%",
-        pass1Time: "4.2s",
-        pass2Time: "27.4s",
-        iterations: "1 iter",
-        mcpParity: "96.20%",
-        mae: "3.80%",
-        rawSize: "243 KB",
-        optSize: "52.6 KB",
-        reduction: "78.33%",
-        summary: "Rigged bipedal combatant with 100% rigid component bone weighting and actionsMap crossfading preventing superposition bleeding.",
-        bullets: [
-          { cat: "Rigid Weighting", text: "Pre-assigned 100% bone weights to component plates, preventing head visor ripping and vertex bleeding." },
-          { cat: "Action Management", text: "Dedicated actions registry isolating Idle, Walk, and Strike clips with smooth 0.35s crossfading." },
-          { cat: "Skeletal Alignment", text: "Blender Z-up armature transformed into Three.js Y-up joints with verified bone roll." },
-          { cat: "Draco Retention", text: "All 11 joints and 3 animation clips preserved through Draco compression with 78.3% size reduction." }
-        ],
-        animated: true,
-        defaultFrame: 22,
-        maxFrame: 48
-      },
-      goo_lab: {
-        id: "goo_lab",
-        name: "13. 🧪 Magnetic Containment Chamber",
-        badge: "4-Key Morph Targets & Viscous Liquid",
-        glb: "assets/goo_lab/goo_lab.glb",
-        ref: "assets/goo_lab/cycles_reference.png",
-        camPos: [0.0, 2.2, 5.2],
-        camTarget: [0.0, 1.1, 0.0],
-        fov: 38.0,
-        oobParity: "65.10%",
-        oobTime: "1.1s",
-        pass1Parity: "87.40%",
-        pass1Time: "5.6s",
-        pass2Time: "34.1s",
-        iterations: "1 iter",
-        mcpParity: "96.04%",
-        mae: "3.96%",
-        rawSize: "439.8 KB",
-        optSize: "323.7 KB",
-        reduction: "26.40%",
-        summary: "Physical hollow open-tube containment shield, 4-key morph target delta retention, and radiant bioluminescent core.",
-        bullets: [
-          { cat: "Morph Targets", text: "4 concurrent morph target delta streams (Squash, Stretch, Wobble1, Wobble2) preserved across Draco." },
-          { cat: "Open Tube Glass", text: "Physical open cylinder eliminating flat-cap endcap z-fighting and shadow occlusion." },
-          { cat: "Volume Absorption", text: "Viscous goo absorption (density: 0.75, IOR: 1.38, transmission: 0.88) with glowing radioactive nuclei." },
-          { cat: "Induction Rings", text: "Induction copper coils and dark titanium alloy base/cap flanges." }
-        ],
-        animated: true,
-        defaultFrame: 24,
-        maxFrame: 60
-      }
+    const MANIFEST_URL = './showcases.json';
+
+    const REF_TAGS = { cycles: 'Cycles AgX', oob: 'Stock OOB', pass1: '1st Pass MCP' };
+
+    const VIEW_META = {
+      'split-cycles': { label: 'Cycles ↔ WebGL', qualifier: 'Split', ref: 'cycles', webgl: 'split', divider: true },
+      'split-oob':    { label: 'OOB ↔ WebGL',    qualifier: 'Split', ref: 'oob',    webgl: 'split', divider: true },
+      'split-pass1':  { label: 'Pass 1 ↔ WebGL', qualifier: 'Split', ref: 'pass1',  webgl: 'split', divider: true },
+      'side-cycles':  { label: 'Cycles | WebGL', qualifier: 'Side by side', ref: 'cycles', webgl: 'side', divider: false },
+      'ref-only':     { label: 'Reference only', qualifier: '', ref: 'cycles', webgl: 'hidden', divider: false },
+      'webgl-only':   { label: 'WebGL only',     qualifier: '', ref: null,    webgl: 'full',   divider: false }
     };
 
-    // DOM Elements
-    const switcherBar = document.getElementById('switcher-bar');
-    const titleEl = document.getElementById('active-showcase-title');
-    const cyclesRefImg = document.getElementById('cycles-ref-img');
-    const canvas = document.getElementById('webgl-canvas');
-    const webglLayer = document.getElementById('webgl-layer');
+    // ── DOM ────────────────────────────────────────────────────────────────
+    const scenePickerBtn = document.getElementById('scene-picker-btn');
+    const scenePopover = document.getElementById('scene-popover');
+    const sceneSearch = document.getElementById('scene-search');
+    const sceneList = document.getElementById('scene-list');
+    const sceneIndex = document.getElementById('scene-index');
+    const sceneLabel = document.getElementById('scene-label');
+    const viewMenuBtn = document.getElementById('view-menu-btn');
+    const viewMenu = document.getElementById('view-menu');
+    const viewMenuLabel = document.getElementById('view-menu-label');
+    const viewQualifier = document.getElementById('view-menu-qualifier');
+    const topbarParity = document.getElementById('tb-parity');
+    const topbarSize = document.getElementById('tb-size');
+    const wordmarkText = document.getElementById('wordmark-text');
+    const drawerToggle = document.getElementById('drawer-toggle');
+    const inspector = document.getElementById('inspector');
+    const inspectorClose = document.getElementById('inspector-close');
+    const inspectorBadge = document.getElementById('inspector-badge');
+    const inspectorTitle = document.getElementById('inspector-title');
+    const inspectorSummary = document.getElementById('inspector-summary');
+    const inspectorDescription = document.getElementById('inspector-description');
+    const inspectorStats = document.getElementById('inspector-stats');
+    const inspectorRepo = document.getElementById('inspector-repo');
+    const inspectorBullets = document.getElementById('inspector-bullets');
+    const inspOob = document.getElementById('insp-oob');
+    const inspOobSub = document.getElementById('insp-oob-sub');
+    const inspPass1 = document.getElementById('insp-pass1');
+    const inspPass1Sub = document.getElementById('insp-pass1-sub');
+    const inspPass2 = document.getElementById('insp-pass2');
+    const inspPass2Sub = document.getElementById('insp-pass2-sub');
+    const inspRaw = document.getElementById('insp-raw');
+    const inspOpt = document.getElementById('insp-opt');
+    const inspReduction = document.getElementById('insp-reduction');
+    const stageFrame = document.getElementById('stage-frame');
+    const refLayer = document.getElementById('ref-layer');
+    const glLayer = document.getElementById('gl-layer');
+    const refImg = document.getElementById('ref-img');
+    const refTag = document.getElementById('ref-tag');
+    const glMedia = document.getElementById('gl-media');
+    const stageLoading = document.getElementById('stage-loading');
     const splitDivider = document.getElementById('split-divider');
-    const viewportBox = document.getElementById('viewport-box');
-    const btnToggleView = document.getElementById('btn-toggle-view');
-    const btnResetCam = document.getElementById('btn-reset-cam');
-    const loadStatus = document.getElementById('load-status');
-    const scrubberPanel = document.getElementById('scrubber-panel');
+    const hud = document.getElementById('hud');
     const btnPlayPause = document.getElementById('btn-play-pause');
     const frameCounter = document.getElementById('frame-counter');
     const animSlider = document.getElementById('anim-slider');
     const timeCounter = document.getElementById('time-counter');
+    const fpsCounter = document.getElementById('fps-counter');
+    const btnResetCam = document.getElementById('btn-reset-cam');
+    const canvas = document.getElementById('webgl-canvas');
 
-    // Telemetry Elements
-    const telBadge = document.getElementById('tel-badge');
-    const telTitle = document.getElementById('tel-title');
-    const telSummary = document.getElementById('tel-summary');
-    const valOob = document.getElementById('val-oob');
-    const timeOob = document.getElementById('time-oob');
-    const valPass1 = document.getElementById('val-pass1');
-    const timePass1 = document.getElementById('time-pass1');
-    const valMcp = document.getElementById('val-mcp');
-    const valMae = document.getElementById('val-mae');
-    const stageBtns = document.querySelectorAll('.stage-btn');
-    const vpTagRef = document.getElementById('vp-tag-ref');
-    const valRaw = document.getElementById('val-raw');
-    const valOpt = document.getElementById('val-opt');
-    const valReduct = document.getElementById('val-reduct');
-    const tbsList = document.getElementById('tbs-list');
+    // ── State ──────────────────────────────────────────────────────────────
+    const state = {
+      manifest: null,
+      activeId: null,
+      viewMode: 'split-cycles',
+      lastComparisonMode: 'split-cycles',
+      splitPercent: 50,
+      isDraggingSplit: false,
+      pointerId: null,
+      isPlaying: false,
+      currentTime: 0,
+      loadToken: 0,
+      drawerOpen: false,
+      pickerOpen: false,
+      viewMenuOpen: false,
+      popoverActive: 0,
+      filteredIds: []
+    };
 
-    // Three.js State
     let scene, camera, renderer, controls;
     let currentModel = null;
     let mixer = null;
-    let actions = [];
-    let isPlaying = false;
-    let currentTime = 0;
-    let activeKey = "bender_cinematic";
-    let isSideBySide = false;
-    let splitPercent = 50.0;
-    let isDraggingSplit = false;
+    const actions = [];
 
-    // Initialize Three.js Engine
+    // ── Manifest ───────────────────────────────────────────────────────────
+    function normalizeManifest(raw) {
+      const list = Array.isArray(raw?.showcases) ? raw.showcases : [];
+      const seen = new Set();
+      const entries = [];
+      const warnings = [];
+
+      for (const item of list) {
+        if (!item || typeof item !== 'object' || typeof item.id !== 'string' || !item.id) {
+          warnings.push('Skipped a showcase entry without an id.');
+          continue;
+        }
+        if (seen.has(item.id)) {
+          warnings.push(`Skipped duplicate showcase id "${item.id}".`);
+          continue;
+        }
+        seen.add(item.id);
+        const id = item.id;
+        const cam = item.camera || {};
+        const parity = item.parity || {};
+        const timing = item.timing || {};
+        const size = item.size || {};
+
+        entries.push({
+          id,
+          label: typeof item.label === 'string' && item.label ? item.label : id,
+          index: typeof item.index === 'string' ? item.index : null,
+          badge: typeof item.badge === 'string' ? item.badge : '',
+          glb: typeof item.glb === 'string' && item.glb ? item.glb : `assets/${id}/${id}.glb`,
+          references: {
+            cycles: item.references?.cycles || `assets/${id}/cycles_reference.png`,
+            oob: item.references?.oob || `assets/${id}/oob_reference.png`,
+            pass1: item.references?.pass1 || `assets/${id}/pass1_reference.png`
+          },
+          camera: {
+            position: Array.isArray(cam.position) && cam.position.length === 3 ? cam.position : [0, 4, 14],
+            target: Array.isArray(cam.target) && cam.target.length === 3 ? cam.target : [0, 0, 0],
+            fov: Number.isFinite(cam.fov) ? cam.fov : 45
+          },
+          background: typeof item.background === 'string' && /^#[0-9a-f]{6}$/i.test(item.background)
+            ? item.background : '#06080e',
+          summary: typeof item.summary === 'string' ? item.summary : '',
+          parity: {
+            oob: parity.oob || '—',
+            pass1: parity.pass1 || '—',
+            pass2: parity.pass2 || '—',
+            mae: parity.mae || '—'
+          },
+          timing: {
+            oob: timing.oob || '',
+            pass1: timing.pass1 || '',
+            pass2: timing.pass2 || '',
+            iterations: timing.iterations || ''
+          },
+          size: {
+            raw: size.raw || '—',
+            opt: size.opt || '—',
+            reduction: size.reduction || '—'
+          },
+          bullets: Array.isArray(item.bullets)
+            ? item.bullets.filter((b) => b && typeof b.text === 'string')
+                .map((b) => ({ cat: typeof b.cat === 'string' ? b.cat : 'Note', text: b.text }))
+            : [],
+          animation: item.animation && Number.isFinite(item.animation.maxFrame)
+            ? {
+                defaultFrame: Number.isFinite(item.animation.defaultFrame) ? item.animation.defaultFrame : 1,
+                maxFrame: item.animation.maxFrame,
+                fps: Number.isFinite(item.animation.fps) && item.animation.fps > 0 ? item.animation.fps : 24
+              }
+            : null
+        });
+      }
+
+      if (!entries.length) throw new Error('The manifest contains no usable showcases.');
+
+      const wanted = typeof raw.default === 'string' ? raw.default : 'bender_cinematic';
+      const featured = entries.find((e) => e.id === wanted)
+        || entries.find((e) => e.id === 'bender_cinematic')
+        || entries[0];
+      const ordered = [featured, ...entries.filter((e) => e !== featured)];
+      ordered.forEach((entry, i) => {
+        if (!entry.index) entry.index = String(i).padStart(2, '0');
+      });
+
+      return {
+        meta: {
+          wordmark: raw.meta?.wordmark || 'Blender2Three-MCP',
+          description: raw.meta?.description || '',
+          repo: raw.meta?.repo || 'https://github.com/oh-codes/Blender2Threejs-MCP',
+          stats: Array.isArray(raw.meta?.stats) ? raw.meta.stats.filter((s) => s && s.label) : []
+        },
+        entries: ordered,
+        byId: new Map(ordered.map((e) => [e.id, e])),
+        defaultId: featured.id,
+        warnings
+      };
+    }
+
+    function resolveInitialId() {
+      const queryId = new URLSearchParams(window.location.search).get('id');
+      const hashId = window.location.hash.replace(/^#/, '');
+      for (const id of [queryId, hashId]) {
+        if (id && state.manifest.byId.has(id)) return id;
+      }
+      return state.manifest.defaultId;
+    }
+
+    function renderStaticMeta() {
+      const meta = state.manifest.meta;
+      wordmarkText.textContent = meta.wordmark;
+      inspectorDescription.textContent = meta.description;
+      inspectorRepo.href = meta.repo;
+      inspectorStats.replaceChildren();
+      for (const stat of meta.stats) {
+        const li = document.createElement('li');
+        const label = document.createElement('span');
+        label.textContent = stat.label;
+        const value = document.createElement('span');
+        value.className = 'mono';
+        value.textContent = stat.value;
+        li.append(label, value);
+        inspectorStats.append(li);
+      }
+      document.title = `${meta.wordmark} — Visual Parity Showcase`;
+    }
+
+    // ── Scene picker ───────────────────────────────────────────────────────
+    function renderSceneList(filter = '') {
+      const query = filter.trim().toLowerCase();
+      const entries = state.manifest.entries.filter((entry) => {
+        if (!query) return true;
+        return entry.label.toLowerCase().includes(query)
+          || entry.id.toLowerCase().includes(query)
+          || entry.badge.toLowerCase().includes(query);
+      });
+
+      state.filteredIds = entries.map((entry) => entry.id);
+      if (state.popoverActive >= entries.length) state.popoverActive = Math.max(0, entries.length - 1);
+
+      sceneList.replaceChildren();
+      entries.forEach((entry, i) => {
+        const li = document.createElement('li');
+        li.id = `scene-opt-${entry.id}`;
+        li.setAttribute('role', 'option');
+        li.dataset.id = entry.id;
+        li.setAttribute('aria-selected', entry.id === state.activeId ? 'true' : 'false');
+        li.classList.toggle('is-active', i === state.popoverActive);
+
+        const index = document.createElement('span');
+        index.className = 'opt-index mono';
+        index.textContent = entry.index;
+
+        const label = document.createElement('span');
+        label.className = 'opt-label';
+        label.textContent = entry.label;
+
+        const parity = document.createElement('span');
+        parity.className = 'opt-parity mono';
+        parity.textContent = entry.parity.pass2;
+
+        li.append(index, label, parity);
+        li.addEventListener('click', () => {
+          switchShowcase(entry.id);
+          closeScenePicker();
+        });
+        sceneList.append(li);
+      });
+
+      updatePopoverActive();
+    }
+
+    function updatePopoverActive() {
+      const options = [...sceneList.children];
+      options.forEach((li, i) => li.classList.toggle('is-active', i === state.popoverActive));
+      const active = options[state.popoverActive];
+      if (active) {
+        sceneSearch.setAttribute('aria-activedescendant', active.id);
+        active.scrollIntoView({ block: 'nearest' });
+      } else {
+        sceneSearch.removeAttribute('aria-activedescendant');
+      }
+    }
+
+    function movePopoverActive(delta) {
+      const count = state.filteredIds.length;
+      if (!count) return;
+      state.popoverActive = (state.popoverActive + delta + count) % count;
+      updatePopoverActive();
+    }
+
+    function selectPopoverActive() {
+      const id = state.filteredIds[state.popoverActive];
+      if (id) {
+        switchShowcase(id);
+        closeScenePicker();
+      }
+    }
+
+    function openScenePicker() {
+      closeViewMenu({ restoreFocus: false });
+      state.pickerOpen = true;
+      state.popoverActive = Math.max(0, state.filteredIds.indexOf(state.activeId));
+      scenePopover.hidden = false;
+      scenePickerBtn.setAttribute('aria-expanded', 'true');
+      sceneSearch.value = '';
+      renderSceneList('');
+      sceneSearch.focus();
+      sceneSearch.select();
+    }
+
+    function closeScenePicker({ restoreFocus = true } = {}) {
+      if (!state.pickerOpen) return;
+      state.pickerOpen = false;
+      scenePopover.hidden = true;
+      scenePickerBtn.setAttribute('aria-expanded', 'false');
+      if (restoreFocus) scenePickerBtn.focus();
+    }
+
+    // ── View menu ──────────────────────────────────────────────────────────
+    function openViewMenu() {
+      closeScenePicker({ restoreFocus: false });
+      state.viewMenuOpen = true;
+      viewMenu.hidden = false;
+      viewMenuBtn.setAttribute('aria-expanded', 'true');
+      const checked = viewMenu.querySelector('[aria-checked="true"]') || viewMenu.querySelector('button');
+      checked?.focus();
+    }
+
+    function closeViewMenu({ restoreFocus = true } = {}) {
+      if (!state.viewMenuOpen) return;
+      state.viewMenuOpen = false;
+      viewMenu.hidden = true;
+      viewMenuBtn.setAttribute('aria-expanded', 'false');
+      if (restoreFocus) viewMenuBtn.focus();
+    }
+
+    function setViewMode(mode, { focus = false } = {}) {
+      if (!VIEW_META[mode]) return;
+      if (mode !== 'webgl-only') state.lastComparisonMode = mode;
+      state.viewMode = mode;
+      applyViewMode();
+      if (focus) viewMenuBtn.focus();
+    }
+
+    function applyViewMode() {
+      const meta = VIEW_META[state.viewMode];
+      const showcase = state.manifest?.byId.get(state.activeId);
+
+      stageFrame.dataset.mode = state.viewMode;
+      stageFrame.classList.toggle('is-side', state.viewMode === 'side-cycles');
+
+      refLayer.hidden = !meta.ref;
+      glLayer.hidden = meta.webgl === 'hidden';
+      splitDivider.hidden = !meta.divider;
+
+      if (meta.ref && showcase) {
+        const src = showcase.references[meta.ref];
+        if (refImg.getAttribute('src') !== src) refImg.src = src;
+        refTag.textContent = REF_TAGS[meta.ref];
+      }
+
+      if (meta.divider) updateSplitPosition(state.splitPercent);
+      else glLayer.style.clipPath = 'none';
+
+      hud.hidden = !(showcase?.animation && meta.webgl !== 'hidden');
+      topbarParity.classList.toggle('is-muted', state.viewMode === 'ref-only');
+
+      viewMenuLabel.textContent = meta.label;
+      viewQualifier.textContent = meta.qualifier || '';
+      viewQualifier.hidden = !meta.qualifier;
+      viewMenuBtn.setAttribute(
+        'aria-label',
+        `View mode: ${meta.label}${meta.qualifier ? ', ' + meta.qualifier : ''}`
+      );
+
+      for (const btn of viewMenu.querySelectorAll('[data-view]')) {
+        btn.setAttribute('aria-checked', btn.dataset.view === state.viewMode ? 'true' : 'false');
+      }
+
+      requestAnimationFrame(resizeRenderer);
+    }
+
+    // ── Split divider ──────────────────────────────────────────────────────
+    function updateSplitPosition(pct) {
+      const value = Math.max(0, Math.min(100, Number(pct) || 0));
+      state.splitPercent = value;
+      splitDivider.style.left = `${value}%`;
+      splitDivider.setAttribute('aria-valuenow', String(Math.round(value)));
+
+      if (VIEW_META[state.viewMode]?.divider) {
+        glLayer.style.clipPath = `polygon(${value}% 0, 100% 0, 100% 100%, ${value}% 100%)`;
+      } else {
+        glLayer.style.clipPath = 'none';
+      }
+    }
+
+    function splitFromEvent(event) {
+      const rect = stageFrame.getBoundingClientRect();
+      return ((event.clientX - rect.left) / rect.width) * 100;
+    }
+
+    function onDividerPointerDown(event) {
+      if (!VIEW_META[state.viewMode]?.divider) return;
+      event.preventDefault();
+      event.stopPropagation();
+      state.isDraggingSplit = true;
+      state.pointerId = event.pointerId;
+      splitDivider.classList.add('is-dragging');
+      try { splitDivider.setPointerCapture(event.pointerId); } catch (_) { /* ignore */ }
+      updateSplitPosition(splitFromEvent(event));
+    }
+
+    function onDividerPointerMove(event) {
+      if (!state.isDraggingSplit || event.pointerId !== state.pointerId) return;
+      updateSplitPosition(splitFromEvent(event));
+    }
+
+    function onDividerPointerUp(event) {
+      if (!state.isDraggingSplit) return;
+      state.isDraggingSplit = false;
+      state.pointerId = null;
+      splitDivider.classList.remove('is-dragging');
+      try { splitDivider.releasePointerCapture(event.pointerId); } catch (_) { /* ignore */ }
+    }
+
+    // ── Three.js ───────────────────────────────────────────────────────────
     function initThree() {
       scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x06080e);
+      scene.background = new THREE.Color('#06080e');
 
-      camera = new THREE.PerspectiveCamera(45.0, 1280 / 720, 0.1, 100.0);
+      camera = new THREE.PerspectiveCamera(45, 16 / 9, 0.1, 100);
       camera.position.set(0, 4, 14);
 
       renderer = new THREE.WebGLRenderer({
@@ -1280,8 +985,8 @@
         powerPreference: 'high-performance',
         preserveDrawingBuffer: true
       });
-      renderer.setSize(1280, 720, false);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      renderer.setSize(1, 1, false);
       renderer.toneMapping = THREE.AgXToneMapping;
       renderer.toneMappingExposure = 1.0;
       renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -1292,7 +997,7 @@
       controls.enableDamping = true;
       controls.dampingFactor = 0.05;
 
-      // Studio Lights Rig
+      // Studio lights rig — unchanged; this is part of the render, not the UI.
       const keyLight = new THREE.SpotLight(0xfff5ea, 50.0, 40.0, Math.PI / 3, 0.45);
       keyLight.position.set(5.0, 8.0, 10.0);
       scene.add(keyLight);
@@ -1307,9 +1012,23 @@
 
       const ambLight = new THREE.AmbientLight(0x0a101f, 1.0);
       scene.add(ambLight);
+
+      new ResizeObserver(() => resizeRenderer()).observe(glMedia);
+      window.addEventListener('resize', resizeRenderer);
     }
 
-    // Loaders
+    function resizeRenderer() {
+      if (!renderer) return;
+      const rect = glMedia.getBoundingClientRect();
+      const width = Math.max(1, Math.round(rect.width));
+      const height = Math.max(1, Math.round(rect.height));
+      if (width < 2 || height < 2) return;
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      renderer.setSize(width, height, false);
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+    }
+
     const dracoLoader = new DRACOLoader();
     dracoLoader.setDecoderPath('https://unpkg.com/three@0.170.0/examples/jsm/libs/draco/');
 
@@ -1317,359 +1036,496 @@
     gltfLoader.setDRACOLoader(dracoLoader);
     gltfLoader.setMeshoptDecoder(MeshoptDecoder);
 
-    // Populate Switcher Buttons
-    function buildSwitcher() {
-      switcherBar.innerHTML = "";
-      Object.keys(SHOWCASES).forEach((k) => {
-        const sc = SHOWCASES[k];
-        const btn = document.createElement('button');
-        btn.className = `showcase-tab ${k === activeKey ? 'active' : ''}`;
-        btn.innerHTML = `<span>${sc.name}</span> <span class="tab-badge">${sc.mcpParity}</span>`;
-        btn.addEventListener('click', () => switchShowcase(k));
-        switcherBar.appendChild(btn);
-      });
+    function setStageMessage(text, isError = false) {
+      stageLoading.textContent = text;
+      stageLoading.classList.toggle('is-error', isError);
+      stageLoading.hidden = !text;
     }
 
-    // Switch Showcase
-    
-    // Stage Selector State
-    let currentStage = 'cycles';
-    stageBtns.forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const stage = btn.getAttribute('data-stage');
-        setComparisonStage(stage);
-      });
-    });
-
-    function setComparisonStage(stage) {
-      currentStage = stage;
-      stageBtns.forEach(b => b.classList.toggle('active', b.getAttribute('data-stage') === stage));
-      const sc = SHOWCASES[activeKey];
-      if (!sc) return;
-
-      const refOobPath = sc.refOob || sc.ref.replace('cycles_reference.png', 'oob_reference.png');
-      const refPass1Path = sc.refPass1 || sc.ref.replace('cycles_reference.png', 'pass1_reference.png');
-
-      if (stage === 'cycles') {
-        cyclesRefImg.src = sc.ref;
-        vpTagRef.innerText = "Blender Cycles AgX (Ground Truth)";
-        vpTagRef.className = "vp-tag vp-tag-cycles";
-        if (splitPercent >= 95) updateSplitPosition(50);
-      } else if (stage === 'oob') {
-        cyclesRefImg.src = refOobPath;
-        vpTagRef.innerText = "Stock Blender OOB (Uncalibrated Export)";
-        vpTagRef.className = "vp-tag vp-tag-oob";
-        if (splitPercent >= 95) updateSplitPosition(50);
-      } else if (stage === 'pass1') {
-        cyclesRefImg.src = refPass1Path;
-        vpTagRef.innerText = "1st Pass Mechanical MCP (Bake + Patch)";
-        vpTagRef.className = "vp-tag vp-tag-pass1";
-        if (splitPercent >= 95) updateSplitPosition(50);
-      } else if (stage === 'pass2') {
-        updateSplitPosition(100);
-      }
-    }
-
-    function switchShowcase(k) {
-      if (!SHOWCASES[k]) return;
-      activeKey = k;
-      window.location.hash = k;
-      const sc = SHOWCASES[k];
-
-      // Update switcher active state
-      document.querySelectorAll('.showcase-tab').forEach((el, idx) => {
-        const key = Object.keys(SHOWCASES)[idx];
-        el.classList.toggle('active', key === activeKey);
-      });
-
-      // Update Header & Telemetry Card
-      titleEl.innerText = sc.name;
-      cyclesRefImg.src = sc.ref;
-      telBadge.innerText = sc.badge;
-      telTitle.innerText = sc.name;
-      telSummary.innerText = sc.summary;
-      valOob.innerText = sc.oobParity;
-      if (timeOob) timeOob.innerText = `⏱️ ${sc.oobTime || "1.2s"} (Vanilla glTF)`;
-      if (valPass1) valPass1.innerText = sc.pass1Parity || "88.50%";
-      if (timePass1) {
-        const delta1 = (parseFloat(sc.pass1Parity || "88.5") - parseFloat(sc.oobParity)).toFixed(1);
-        timePass1.innerText = `⏱️ ${sc.pass1Time || "6.5s"} (+${delta1}% tool gain)`;
-      }
-      valMcp.innerText = sc.mcpParity;
-      valMae.innerText = `⏱️ ${sc.pass2Time || "35.0s"} (${sc.iterations || "1 iter"} • MAE: ${sc.mae})`;
-      setComparisonStage(currentStage);
-      valRaw.innerText = sc.rawSize;
-      valOpt.innerText = sc.optSize;
-      valReduct.innerText = `${sc.reduction} Size Reduction`;
-
-      // Update Bullets
-      tbsList.innerHTML = "";
-      sc.bullets.forEach((b) => {
-        const li = document.createElement('li');
-        li.className = 'tbs-item';
-        li.innerHTML = `<span class="tbs-cat">• ${b.cat}:</span> <span>${b.text}</span>`;
-        tbsList.appendChild(li);
-      });
-
-      // Configure Background Color
-      scene.background = new THREE.Color(sc.bgColor !== undefined ? sc.bgColor : 0x06080e);
-
-      // Configure Camera
-      camera.fov = sc.fov || 45.0;
-      camera.updateProjectionMatrix();
-      camera.position.set(...sc.camPos);
-      controls.target.set(...sc.camTarget);
-      controls.update();
-
-      // Configure Scrubber
-      if (sc.animated) {
-        scrubberPanel.classList.add('active');
-        animSlider.max = sc.maxFrame || 100;
-        animSlider.value = sc.defaultFrame || 1;
-        currentTime = (sc.defaultFrame || 1) / 24.0;
-        frameCounter.innerText = `F: ${sc.defaultFrame || 1}`;
-        timeCounter.innerText = `${currentTime.toFixed(2)}s`;
-      } else {
-        scrubberPanel.classList.remove('active');
-      }
-
-      // Load 3D GLB
-      loadStatus.innerText = "Loading 3D asset...";
-      if (currentModel) {
-        scene.remove(currentModel);
-        currentModel = null;
-      }
-      mixer = null;
-      actions = [];
-
-      gltfLoader.load(sc.glb, (gltf) => {
-        currentModel = gltf.scene;
-        scene.add(currentModel);
-
-        // Apply physical material calibrations
-        currentModel.traverse((o) => {
-          if (o.isLight && (o.isDirectionalLight || o.isSpotLight)) {
-            o.castShadow = true;
-            if (o.shadow) {
-              o.shadow.mapSize.width = 2048;
-              o.shadow.mapSize.height = 2048;
-              o.shadow.bias = -0.0001;
-            }
+    function applyMaterialCalibrations(root) {
+      root.traverse((o) => {
+        if (o.isLight && (o.isDirectionalLight || o.isSpotLight)) {
+          o.castShadow = true;
+          if (o.shadow) {
+            o.shadow.mapSize.width = 2048;
+            o.shadow.mapSize.height = 2048;
+            o.shadow.bias = -0.0001;
           }
-
-          if (o.isMesh) {
-            o.castShadow = true;
-            o.receiveShadow = true;
-            if (o.material) {
-              o.material.envMapIntensity = 0.5;
-
-              // Solid Titanium PBR (Mystery Crate Chassis & Museum Display Plinths)
-              if (o.material.name.includes("Titanium") || o.material.name.includes("Crate_Titanium") || o.name.includes("Plinth")) {
-                o.material.transmission = 0.0;
-                o.material.transparent = false;
-                o.material.depthWrite = true;
-                o.material.metalness = 0.88;
-                o.material.roughness = 0.22;
-                o.material.color = new THREE.Color(0x282c34);
-              }
-
-              // Transmissive glass (strictly exclude plinths, collars, titanium, and alpha-blended stained glass)
-              if ((o.material.name.includes("Glass") || o.name.includes("Hero_Diamond_Prism") || o.name.includes("Diamond") || o.material.name.includes("Optical")) && !o.name.includes("Plinth") && !o.name.includes("Collar") && !o.material.name.includes("Titanium") && !o.material.name.includes("StainedGlass")) {
-                o.material.transmission = 0.98;
-                o.material.ior = 1.52;
-                o.material.transparent = true;
-              }
-
-              // Stained Glass decorative window panels (Alpha BLEND with diffuse texture, not transmissive volume)
-              if (o.material.name.includes("StainedGlass") || o.name.includes("Stained_Glass")) {
-                o.material.transmission = 0.0;
-                o.material.transparent = true;
-                o.material.depthWrite = false;
-                o.material.side = THREE.DoubleSide;
-                o.material.roughness = 0.06;
-                o.material.metalness = 0.0;
-                o.renderOrder = 3;
-              }
-
-              // Foliage Cutout Masking & Cast Shadow Perforation
-              if (o.material.name.includes("Foliage") || o.name.includes("Foliage")) {
-                o.material.alphaTest = 0.5;
-                o.material.transparent = false;
-                o.material.depthWrite = true;
-                o.material.side = THREE.DoubleSide;
-                if (o.material.map) {
-                  o.customDepthMaterial = new THREE.MeshDepthMaterial({
-                    depthPacking: THREE.RGBADepthPacking,
-                    map: o.material.map,
-                    alphaTest: 0.5
-                  });
-                }
-              }
-
-              // Surface Floor Decal (Anti Z-Fighting via PolygonOffset)
-              if (o.material.name.includes("Decal") || o.name.includes("Decal")) {
-                o.material.transparent = true;
-                o.material.depthWrite = false;
-                o.material.polygonOffset = true;
-                o.material.polygonOffsetFactor = -1.0;
-                o.material.polygonOffsetUnits = -4.0;
-                o.renderOrder = 2;
-              }
-
-              // Iridescent soap bubbles
-              if (o.material.name.includes("Bubble") || o.name.includes("Bubble")) {
-                o.material.transmission = 0.98;
-                o.material.ior = 1.333;
-                o.material.iridescence = 1.0;
-                o.material.iridescenceThicknessRange = [100, 480];
-                o.material.clearcoat = 1.0;
-                o.material.transparent = true;
-                o.material.depthWrite = false;
-              }
-
-              // 3D Text Typography Materials
-              if (o.material.name.includes("Title_Cyan_Metallic")) {
-                o.material.color = new THREE.Color(0x19a0ec);
-                o.material.emissive = new THREE.Color(0x0e7490);
-                o.material.emissiveIntensity = 0.9;
-                o.material.metalness = 0.85;
-              }
-              if (o.material.name.includes("Title_Gold_L_Accent")) {
-                o.material.color = new THREE.Color(0xffaa00);
-                o.material.emissive = new THREE.Color(0xff8800);
-                o.material.emissiveIntensity = 2.6;
-                o.material.metalness = 0.95;
-              }
-            }
-          }
-        });
-
-        // Animations setup
-        if (gltf.animations && gltf.animations.length > 0) {
-          mixer = new THREE.AnimationMixer(currentModel);
-          gltf.animations.forEach((clip) => {
-            const act = mixer.clipAction(clip);
-            act.play();
-            actions.push(act);
-          });
-          mixer.setTime(currentTime);
         }
 
-        loadStatus.innerText = "Loaded 60 FPS";
-      }, undefined, (err) => {
-        console.error(err);
-        loadStatus.innerText = "Load Error";
+        if (o.isMesh) {
+          o.castShadow = true;
+          o.receiveShadow = true;
+          if (o.material) {
+            o.material.envMapIntensity = 0.5;
+
+            // Solid Titanium PBR (Mystery Crate Chassis & Museum Display Plinths)
+            if (o.material.name.includes('Titanium') || o.material.name.includes('Crate_Titanium') || o.name.includes('Plinth')) {
+              o.material.transmission = 0.0;
+              o.material.transparent = false;
+              o.material.depthWrite = true;
+              o.material.metalness = 0.88;
+              o.material.roughness = 0.22;
+              o.material.color = new THREE.Color(0x282c34);
+            }
+
+            // Transmissive glass (strictly exclude plinths, collars, titanium, and alpha-blended stained glass)
+            if ((o.material.name.includes('Glass') || o.name.includes('Hero_Diamond_Prism') || o.name.includes('Diamond') || o.material.name.includes('Optical')) && !o.name.includes('Plinth') && !o.name.includes('Collar') && !o.material.name.includes('Titanium') && !o.material.name.includes('StainedGlass')) {
+              o.material.transmission = 0.98;
+              o.material.ior = 1.52;
+              o.material.transparent = true;
+            }
+
+            // Stained Glass decorative window panels (Alpha BLEND with diffuse texture, not transmissive volume)
+            if (o.material.name.includes('StainedGlass') || o.name.includes('Stained_Glass')) {
+              o.material.transmission = 0.0;
+              o.material.transparent = true;
+              o.material.depthWrite = false;
+              o.material.side = THREE.DoubleSide;
+              o.material.roughness = 0.06;
+              o.material.metalness = 0.0;
+              o.renderOrder = 3;
+            }
+
+            // Foliage Cutout Masking & Cast Shadow Perforation
+            if (o.material.name.includes('Foliage') || o.name.includes('Foliage')) {
+              o.material.alphaTest = 0.5;
+              o.material.transparent = false;
+              o.material.depthWrite = true;
+              o.material.side = THREE.DoubleSide;
+              if (o.material.map) {
+                o.customDepthMaterial = new THREE.MeshDepthMaterial({
+                  depthPacking: THREE.RGBADepthPacking,
+                  map: o.material.map,
+                  alphaTest: 0.5
+                });
+              }
+            }
+
+            // Surface Floor Decal (Anti Z-Fighting via PolygonOffset)
+            if (o.material.name.includes('Decal') || o.name.includes('Decal')) {
+              o.material.transparent = true;
+              o.material.depthWrite = false;
+              o.material.polygonOffset = true;
+              o.material.polygonOffsetFactor = -1.0;
+              o.material.polygonOffsetUnits = -4.0;
+              o.renderOrder = 2;
+            }
+
+            // Iridescent soap bubbles
+            if (o.material.name.includes('Bubble') || o.name.includes('Bubble')) {
+              o.material.transmission = 0.98;
+              o.material.ior = 1.333;
+              o.material.iridescence = 1.0;
+              o.material.iridescenceThicknessRange = [100, 480];
+              o.material.clearcoat = 1.0;
+              o.material.transparent = true;
+              o.material.depthWrite = false;
+            }
+
+            // 3D Text Typography Materials
+            if (o.material.name.includes('Title_Cyan_Metallic')) {
+              o.material.color = new THREE.Color(0x19a0ec);
+              o.material.emissive = new THREE.Color(0x0e7490);
+              o.material.emissiveIntensity = 0.9;
+              o.material.metalness = 0.85;
+            }
+            if (o.material.name.includes('Title_Gold_L_Accent')) {
+              o.material.color = new THREE.Color(0xffaa00);
+              o.material.emissive = new THREE.Color(0xff8800);
+              o.material.emissiveIntensity = 2.6;
+              o.material.metalness = 0.95;
+            }
+          }
+        }
       });
     }
 
-    // Split-Slider Logic
-    function updateSplitPosition(pct) {
-      splitPercent = Math.max(0, Math.min(100, pct));
-      if (!isSideBySide) {
-        splitDivider.style.left = `${splitPercent}%`;
-        // Clip webgl layer so left side reveals Cycles, right side reveals WebGL
-        webglLayer.style.clipPath = `polygon(${splitPercent}% 0, 100% 0, 100% 100%, ${splitPercent}% 100%)`;
-      }
-    }
-    window.setSplitPercent = updateSplitPosition;
+    function disposeObject(root) {
+      const geometries = new Set();
+      const materials = new Set();
+      const textures = new Set();
 
-    // Viewport Pointer Interaction for Split Slider
-    viewportBox.addEventListener('mousedown', (e) => {
-      if (isSideBySide) return;
-      isDraggingSplit = true;
-      handleSplitMove(e);
-    });
-    window.addEventListener('mousemove', (e) => {
-      if (!isDraggingSplit || isSideBySide) return;
-      handleSplitMove(e);
-    });
-    window.addEventListener('mouseup', () => {
-      isDraggingSplit = false;
-    });
+      root.traverse((o) => {
+        if (o.geometry) geometries.add(o.geometry);
+        const list = o.material ? (Array.isArray(o.material) ? o.material : [o.material]) : [];
+        for (const material of list) {
+          if (!material) continue;
+          materials.add(material);
+          for (const key of Object.keys(material)) {
+            const value = material[key];
+            if (value && value.isTexture) textures.add(value);
+          }
+        }
+        if (o.customDepthMaterial) materials.add(o.customDepthMaterial);
+      });
 
-    function handleSplitMove(e) {
-      const rect = viewportBox.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const pct = (x / rect.width) * 100.0;
-      updateSplitPosition(pct);
+      textures.forEach((t) => t.dispose());
+      materials.forEach((m) => m.dispose());
+      geometries.forEach((g) => g.dispose());
     }
 
-    // Toggle Side-by-Side Mode
-    btnToggleView.addEventListener('click', () => {
-      isSideBySide = !isSideBySide;
-      viewportBox.classList.toggle('side-by-side-mode', isSideBySide);
-      btnToggleView.innerText = isSideBySide ? "🔀 Split Slider" : "🔀 Side-by-Side";
-      btnToggleView.classList.toggle('active', isSideBySide);
-      if (isSideBySide) {
-        webglLayer.style.clipPath = 'none';
-      } else {
-        updateSplitPosition(splitPercent);
+    function disposeCurrentModel() {
+      if (mixer) {
+        mixer.stopAllAction();
+        if (currentModel) mixer.uncacheRoot(currentModel);
+        mixer = null;
       }
-    });
+      actions.length = 0;
+      if (currentModel) {
+        scene.remove(currentModel);
+        disposeObject(currentModel);
+        currentModel = null;
+      }
+    }
 
-    // Reset Camera
-    btnResetCam.addEventListener('click', () => {
-      const sc = SHOWCASES[activeKey];
-      if (!sc) return;
-      camera.fov = sc.fov || 45.0;
+    function loadGLB(showcase) {
+      const token = ++state.loadToken;
+      stageFrame.dataset.loaded = '0';
+      setStageMessage('Loading…');
+
+      gltfLoader.load(showcase.glb, (gltf) => {
+        if (token !== state.loadToken) {
+          disposeObject(gltf.scene);
+          return;
+        }
+        currentModel = gltf.scene;
+        scene.add(currentModel);
+        applyMaterialCalibrations(currentModel);
+
+        if (gltf.animations && gltf.animations.length > 0) {
+          mixer = new THREE.AnimationMixer(currentModel);
+          for (const clip of gltf.animations) {
+            const action = mixer.clipAction(clip);
+            action.play();
+            actions.push(action);
+          }
+          mixer.setTime(state.currentTime);
+        }
+
+        stageFrame.dataset.loaded = '1';
+        setStageMessage('');
+      }, undefined, (error) => {
+        if (token !== state.loadToken) return;
+        console.error('GLB load failed:', showcase.glb, error);
+        setStageMessage(`Could not load ${showcase.glb}`, true);
+      });
+    }
+
+    // ── Scene rendering ────────────────────────────────────────────────────
+    function switchShowcase(id, { updateHash = true } = {}) {
+      const showcase = state.manifest?.byId.get(id);
+      if (!showcase || !scene) return;
+
+      state.activeId = id;
+      if (updateHash && window.location.hash !== `#${id}`) window.location.hash = id;
+
+      sceneIndex.textContent = showcase.index;
+      sceneLabel.textContent = showcase.label;
+      document.title = `${showcase.label} — ${state.manifest.meta.wordmark}`;
+
+      renderInspector(showcase);
+      topbarParity.textContent = showcase.parity.pass2;
+      topbarSize.textContent = showcase.size.opt;
+
+      scene.background = new THREE.Color(showcase.background);
+      camera.fov = showcase.camera.fov;
       camera.updateProjectionMatrix();
-      camera.position.set(...sc.camPos);
-      controls.target.set(...sc.camTarget);
+      camera.position.set(...showcase.camera.position);
+      controls.target.set(...showcase.camera.target);
       controls.update();
-    });
 
-    // Playback Controls
-    btnPlayPause.addEventListener('click', () => {
-      isPlaying = !isPlaying;
-      btnPlayPause.innerText = isPlaying ? "⏸ Pause" : "▶ Play";
-      btnPlayPause.classList.toggle('active', isPlaying);
-    });
+      setPlaying(false);
+      state.currentTime = showcase.animation
+        ? (showcase.animation.defaultFrame - 1) / showcase.animation.fps
+        : 0;
+      updatePlaybackUI(showcase);
 
-    animSlider.addEventListener('input', (e) => {
-      isPlaying = false;
-      btnPlayPause.innerText = "▶ Play";
-      btnPlayPause.classList.remove('active');
-      const f = parseInt(e.target.value);
-      currentTime = f / 24.0;
-      frameCounter.innerText = `F: ${f}`;
-      timeCounter.innerText = `${currentTime.toFixed(2)}s`;
-      if (mixer) mixer.setTime(currentTime);
-    });
+      disposeCurrentModel();
+      applyViewMode();
+      loadGLB(showcase);
+    }
 
-    // Render Loop
+    function renderInspector(showcase) {
+      inspectorBadge.textContent = showcase.badge;
+      inspectorTitle.textContent = showcase.label;
+      inspectorSummary.textContent = showcase.summary;
+
+      inspOob.textContent = showcase.parity.oob;
+      inspOobSub.textContent = showcase.timing.oob;
+
+      inspPass1.textContent = showcase.parity.pass1;
+      const gain = parseFloat(showcase.parity.pass1) - parseFloat(showcase.parity.oob);
+      inspPass1Sub.textContent = Number.isFinite(gain)
+        ? `${showcase.timing.pass1} (+${gain.toFixed(1)}% gain)`
+        : showcase.timing.pass1;
+
+      inspPass2.textContent = showcase.parity.pass2;
+      inspPass2Sub.textContent = [showcase.timing.pass2, showcase.timing.iterations, `MAE ${showcase.parity.mae}`]
+        .filter(Boolean).join(' · ');
+
+      inspRaw.textContent = showcase.size.raw;
+      inspOpt.textContent = showcase.size.opt;
+      inspReduction.textContent = `${showcase.size.reduction} reduction`;
+
+      inspectorBullets.replaceChildren();
+      for (const bullet of showcase.bullets) {
+        const li = document.createElement('li');
+        const cat = document.createElement('span');
+        cat.className = 'b-cat';
+        cat.textContent = bullet.cat;
+        const text = document.createElement('span');
+        text.textContent = bullet.text;
+        li.append(cat, text);
+        inspectorBullets.append(li);
+      }
+    }
+
+    // ── Playback ───────────────────────────────────────────────────────────
+    function setPlaying(flag) {
+      state.isPlaying = Boolean(flag);
+      btnPlayPause.textContent = state.isPlaying ? '❚❚' : '▶';
+      btnPlayPause.setAttribute('aria-label', state.isPlaying ? 'Pause' : 'Play');
+      btnPlayPause.classList.toggle('is-active', state.isPlaying);
+    }
+
+    function updatePlaybackUI(showcase) {
+      if (!showcase?.animation) {
+        hud.hidden = true;
+        return;
+      }
+      const { maxFrame, fps } = showcase.animation;
+      animSlider.min = '1';
+      animSlider.max = String(maxFrame);
+      const frame = Math.min(maxFrame, Math.max(1, Math.floor(state.currentTime * fps) + 1));
+      animSlider.value = String(frame);
+      frameCounter.textContent = `F ${frame}`;
+      timeCounter.textContent = `${state.currentTime.toFixed(2)}s`;
+    }
+
+    function resetCamera() {
+      const showcase = state.manifest?.byId.get(state.activeId);
+      if (!showcase) return;
+      camera.fov = showcase.camera.fov;
+      camera.updateProjectionMatrix();
+      camera.position.set(...showcase.camera.position);
+      controls.target.set(...showcase.camera.target);
+      controls.update();
+    }
+
+    // ── Drawer ─────────────────────────────────────────────────────────────
+    function toggleDrawer(force) {
+      const open = force === undefined ? !state.drawerOpen : Boolean(force);
+      state.drawerOpen = open;
+      document.body.classList.toggle('drawer-open', open);
+      inspector.setAttribute('aria-hidden', String(!open));
+      drawerToggle.setAttribute('aria-expanded', String(open));
+
+      if (open) {
+        inspector.removeAttribute('inert');
+        inspectorClose.focus();
+      } else {
+        inspector.setAttribute('inert', '');
+        drawerToggle.focus();
+      }
+    }
+
+    function closeDrawer() {
+      if (state.drawerOpen) toggleDrawer(false);
+    }
+
+    // ── Keyboard and chrome ────────────────────────────────────────────────
+    function onKeyDown(event) {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        state.pickerOpen ? closeScenePicker() : openScenePicker();
+        return;
+      }
+
+      if (event.key === 'Escape') {
+        if (state.pickerOpen) closeScenePicker();
+        else if (state.viewMenuOpen) closeViewMenu();
+        else if (state.drawerOpen) closeDrawer();
+        return;
+      }
+
+      const target = event.target;
+      if (target.closest('input, textarea, select, [contenteditable="true"]')) return;
+      if (event.ctrlKey || event.metaKey || event.altKey) return;
+
+      if (event.key === ' ') {
+        if (target.closest('button, [role="menuitemradio"], [role="option"]')) return;
+        event.preventDefault();
+        if (state.viewMode === 'webgl-only') {
+          setViewMode(state.lastComparisonMode);
+        } else {
+          state.lastComparisonMode = state.viewMode;
+          setViewMode('webgl-only');
+        }
+      } else if (event.key.toLowerCase() === 'i') {
+        event.preventDefault();
+        toggleDrawer();
+      } else if (event.key.toLowerCase() === 'r') {
+        event.preventDefault();
+        resetCamera();
+      }
+    }
+
+    function bindEvents() {
+      scenePickerBtn.addEventListener('click', () => {
+        state.pickerOpen ? closeScenePicker() : openScenePicker();
+      });
+
+      sceneSearch.addEventListener('input', () => {
+        state.popoverActive = 0;
+        renderSceneList(sceneSearch.value);
+      });
+
+      sceneSearch.addEventListener('keydown', (event) => {
+        if (event.key === 'ArrowDown') { event.preventDefault(); movePopoverActive(1); }
+        else if (event.key === 'ArrowUp') { event.preventDefault(); movePopoverActive(-1); }
+        else if (event.key === 'Enter') { event.preventDefault(); selectPopoverActive(); }
+        else if (event.key === 'Escape') { event.preventDefault(); closeScenePicker(); }
+        else if (event.key === 'Tab') { closeScenePicker({ restoreFocus: false }); }
+      });
+
+      viewMenuBtn.addEventListener('click', () => {
+        state.viewMenuOpen ? closeViewMenu() : openViewMenu();
+      });
+
+      viewMenu.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-view]');
+        if (!button) return;
+        setViewMode(button.dataset.view);
+        closeViewMenu();
+      });
+
+      viewMenu.addEventListener('keydown', (event) => {
+        const items = [...viewMenu.querySelectorAll('button')];
+        const index = items.indexOf(document.activeElement);
+        if (event.key === 'ArrowDown') { event.preventDefault(); items[(index + 1) % items.length].focus(); }
+        else if (event.key === 'ArrowUp') { event.preventDefault(); items[(index - 1 + items.length) % items.length].focus(); }
+        else if (event.key === 'Escape') { event.preventDefault(); closeViewMenu(); }
+      });
+
+      drawerToggle.addEventListener('click', () => toggleDrawer());
+      inspectorClose.addEventListener('click', () => toggleDrawer(false));
+
+      btnPlayPause.addEventListener('click', () => setPlaying(!state.isPlaying));
+
+      animSlider.addEventListener('input', () => {
+        setPlaying(false);
+        const showcase = state.manifest?.byId.get(state.activeId);
+        if (!showcase?.animation) return;
+        const frame = parseInt(animSlider.value, 10) || 1;
+        state.currentTime = (frame - 1) / showcase.animation.fps;
+        frameCounter.textContent = `F ${frame}`;
+        timeCounter.textContent = `${state.currentTime.toFixed(2)}s`;
+        if (mixer) mixer.setTime(state.currentTime);
+      });
+
+      btnResetCam.addEventListener('click', resetCamera);
+
+      splitDivider.addEventListener('pointerdown', onDividerPointerDown);
+      splitDivider.addEventListener('pointermove', onDividerPointerMove);
+      splitDivider.addEventListener('pointerup', onDividerPointerUp);
+      splitDivider.addEventListener('pointercancel', onDividerPointerUp);
+      splitDivider.addEventListener('dblclick', () => updateSplitPosition(50));
+      splitDivider.addEventListener('keydown', (event) => {
+        const step = event.shiftKey ? 10 : 2;
+        if (event.key === 'ArrowLeft') { event.preventDefault(); updateSplitPosition(state.splitPercent - step); }
+        else if (event.key === 'ArrowRight') { event.preventDefault(); updateSplitPosition(state.splitPercent + step); }
+        else if (event.key === 'Home') { event.preventDefault(); updateSplitPosition(0); }
+        else if (event.key === 'End') { event.preventDefault(); updateSplitPosition(100); }
+      });
+
+      document.addEventListener('pointerdown', (event) => {
+        if (state.pickerOpen && !event.target.closest('#scene-popover, #scene-picker-btn')) {
+          closeScenePicker({ restoreFocus: false });
+        }
+        if (state.viewMenuOpen && !event.target.closest('#view-menu, #view-menu-btn')) {
+          closeViewMenu({ restoreFocus: false });
+        }
+      }, true);
+
+      window.addEventListener('keydown', onKeyDown);
+
+      window.addEventListener('hashchange', () => {
+        const id = window.location.hash.replace(/^#/, '');
+        if (id && id !== state.activeId && state.manifest?.byId.has(id)) {
+          switchShowcase(id, { updateHash: false });
+        }
+      });
+    }
+
+    // ── Render loop ────────────────────────────────────────────────────────
     let lastTime = performance.now();
+    let fpsFrames = 0;
+    let fpsStart = lastTime;
+    let fpsValue = 0;
+
     function animate(now) {
       requestAnimationFrame(animate);
 
-      const delta = (now - lastTime) / 1000.0;
+      const delta = Math.min((now - lastTime) / 1000, 0.1);
       lastTime = now;
 
-      // Advance animation timeline if playing
-      const sc = SHOWCASES[activeKey];
-      if (isPlaying && sc && sc.animated) {
-        currentTime += delta;
-        const maxT = (sc.maxFrame || 60) / 24.0;
-        if (currentTime > maxT) currentTime = 0;
-        const currentF = Math.floor(currentTime * 24.0) + 1;
-        animSlider.value = currentF;
-        frameCounter.innerText = `F: ${currentF}`;
-        timeCounter.innerText = `${currentTime.toFixed(2)}s`;
-        if (mixer) mixer.setTime(currentTime);
+      const showcase = state.manifest?.byId.get(state.activeId);
+      if (state.isPlaying && showcase?.animation) {
+        const { maxFrame, fps } = showcase.animation;
+        state.currentTime += delta;
+        if (state.currentTime > (maxFrame - 1) / fps) state.currentTime = 0;
+        const frame = Math.min(maxFrame, Math.max(1, Math.floor(state.currentTime * fps) + 1));
+        animSlider.value = String(frame);
+        frameCounter.textContent = `F ${frame}`;
+        timeCounter.textContent = `${state.currentTime.toFixed(2)}s`;
+        if (mixer) mixer.setTime(state.currentTime);
+      }
+
+      fpsFrames += 1;
+      if (now - fpsStart >= 500) {
+        fpsValue = Math.round((fpsFrames * 1000) / (now - fpsStart));
+        fpsFrames = 0;
+        fpsStart = now;
+        fpsCounter.textContent = `${fpsValue} fps`;
       }
 
       controls.update();
       renderer.render(scene, camera);
     }
 
-    // Startup Initialization
-    initThree();
-    buildSwitcher();
-    const urlParams = new URLSearchParams(window.location.search);
-    const initialKey = urlParams.get('id') || window.location.hash.replace('#', '') || "bender_cinematic";
-    switchShowcase(SHOWCASES[initialKey] ? initialKey : "bender_cinematic");
-    updateSplitPosition(50.0);
-    requestAnimationFrame(animate);
+    // ── Init ───────────────────────────────────────────────────────────────
+    async function init() {
+      initThree();
+      bindEvents();
 
+      try {
+        const response = await fetch(MANIFEST_URL, { cache: 'no-store' });
+        if (!response.ok) throw new Error(`HTTP ${response.status} for ${MANIFEST_URL}`);
+        const raw = await response.json();
+        state.manifest = normalizeManifest(raw);
+        if (state.manifest.warnings.length) {
+          console.warn('[showcases]', ...state.manifest.warnings);
+        }
+
+        renderStaticMeta();
+        renderSceneList('');
+        switchShowcase(resolveInitialId(), { updateHash: false });
+        applyViewMode();
+        requestAnimationFrame(animate);
+      } catch (error) {
+        console.error(error);
+        setStageMessage(
+          `Could not load ${MANIFEST_URL} — serve this folder over HTTP, e.g. python -m http.server 8080`,
+          true
+        );
+        scenePickerBtn.disabled = true;
+        viewMenuBtn.disabled = true;
+        drawerToggle.disabled = true;
+      }
+    }
+
+    init();
   </script>
 </body>
 </html>
