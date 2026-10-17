@@ -158,6 +158,8 @@
     }
     .menu button::before { content: ""; width: 5px; height: 5px; border-radius: 50%; flex: none; }
     .menu button:hover, .menu button:focus-visible { background: var(--surface-3); color: var(--text); }
+    .menu button:disabled { opacity: 0.35; cursor: default; }
+    .menu button:disabled:hover { background: none; color: var(--text-muted); }
     .menu button[aria-checked="true"] { color: var(--text); }
     .menu button[aria-checked="true"]::before { background: var(--accent); }
     .menu-qual { margin-left: auto; color: var(--text-faint); font-size: 10.5px; }
@@ -329,6 +331,8 @@
     .rail-value { color: rgba(255, 255, 255, 0.86); font-size: 12px; letter-spacing: 0; text-transform: none; }
     .rail-arrow { color: rgba(255, 255, 255, 0.26); font-size: 11px; }
     .rail-note { margin-left: 6px; color: rgba(255, 255, 255, 0.34); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; }
+    .rail-step:disabled { opacity: 0.35; cursor: default; }
+    .rail-step:disabled:hover { background: none; color: rgba(255, 255, 255, 0.62); }
 
     /* ── Side-by-side ───────────────────────────────────────────────────── */
     .stage-frame.is-side { display: grid; grid-template-columns: 1fr 1fr; }
@@ -643,7 +647,7 @@
       <ul id="inspector-constraints" class="chips"></ul>
     </section>
 
-    <section class="insp-section" aria-labelledby="insp-bullets-h">
+    <section class="insp-section" id="changed-section" aria-labelledby="insp-bullets-h">
       <h3 id="insp-bullets-h">What the pipeline changed</h3>
       <ul id="inspector-bullets" class="bullets"></ul>
     </section>
@@ -751,6 +755,7 @@
     const inspectorStats = document.getElementById('inspector-stats');
     const inspectorRepo = document.getElementById('inspector-repo');
     const inspectorBullets = document.getElementById('inspector-bullets');
+    const changedSection = document.getElementById('changed-section');
     const inspOob = document.getElementById('insp-oob');
     const inspOobSub = document.getElementById('insp-oob-sub');
     const inspPass1 = document.getElementById('insp-pass1');
@@ -800,7 +805,9 @@
       pickerOpen: false,
       viewMenuOpen: false,
       popoverActive: 0,
-      filteredIds: []
+      filteredIds: [],
+      adoptedCamera: null,
+      customObjects: []
     };
 
     let scene, camera, renderer, controls;
@@ -839,14 +846,20 @@
           glb: typeof item.glb === 'string' && item.glb ? item.glb : `assets/${id}/${id}.glb`,
           references: {
             cycles: item.references?.cycles || `assets/${id}/cycles_reference.png`,
-            oob: item.references?.oob || `assets/${id}/oob_reference.png`,
-            pass1: item.references?.pass1 || `assets/${id}/pass1_reference.png`
+            oob: item.references?.oob === null
+              ? null
+              : (item.references?.oob || `assets/${id}/oob_reference.png`),
+            pass1: item.references?.pass1 === null
+              ? null
+              : (item.references?.pass1 || `assets/${id}/pass1_reference.png`)
           },
           camera: {
             position: Array.isArray(cam.position) && cam.position.length === 3 ? cam.position : [0, 4, 14],
             target: Array.isArray(cam.target) && cam.target.length === 3 ? cam.target : [0, 0, 0],
             fov: Number.isFinite(cam.fov) ? cam.fov : 45
           },
+          adoptCamera: item.adoptCamera === true,
+          customSetup: typeof item.customSetup === 'string' ? item.customSetup : '',
           background: typeof item.background === 'string' && /^#[0-9a-f]{6}$/i.test(item.background)
             ? item.background : '#06080e',
           summary: typeof item.summary === 'string' ? item.summary : '',
@@ -1055,6 +1068,9 @@
 
     function setViewMode(mode, { focus = false } = {}) {
       if (!VIEW_META[mode]) return;
+      const showcase = state.manifest?.byId.get(state.activeId);
+      const requiredRef = VIEW_META[mode].ref;
+      if (requiredRef && !showcase?.references?.[requiredRef]) return;
       if (mode !== 'webgl-only') state.lastComparisonMode = mode;
       state.viewMode = mode;
       applyViewMode();
@@ -1062,8 +1078,13 @@
     }
 
     function applyViewMode() {
-      const meta = VIEW_META[state.viewMode];
       const showcase = state.manifest?.byId.get(state.activeId);
+      let meta = VIEW_META[state.viewMode];
+      if (meta.ref && !showcase?.references?.[meta.ref]) {
+        state.viewMode = 'split-cycles';
+        state.lastComparisonMode = 'split-cycles';
+        meta = VIEW_META[state.viewMode];
+      }
 
       stageFrame.dataset.mode = state.viewMode;
       stageFrame.classList.toggle('is-side', state.viewMode === 'side-cycles');
@@ -1097,6 +1118,7 @@
       }
 
       updateRailActive();
+      updateReferenceAvailability(showcase);
       requestAnimationFrame(resizeRenderer);
     }
 
@@ -1242,7 +1264,7 @@
             }
 
             // Transmissive glass (strictly exclude plinths, collars, titanium, and alpha-blended stained glass)
-            if ((o.material.name.includes('Glass') || o.name.includes('Hero_Diamond_Prism') || o.name.includes('Diamond') || o.material.name.includes('Optical')) && !o.name.includes('Plinth') && !o.name.includes('Collar') && !o.material.name.includes('Titanium') && !o.material.name.includes('StainedGlass')) {
+            if (o.material.isMeshPhysicalMaterial && (o.material.name.includes('Glass') || o.name.includes('Hero_Diamond_Prism') || o.name.includes('Diamond') || o.material.name.includes('Optical')) && !o.name.includes('Plinth') && !o.name.includes('Collar') && !o.material.name.includes('Titanium') && !o.material.name.includes('StainedGlass')) {
               o.material.transmission = 0.98;
               o.material.ior = 1.52;
               o.material.transparent = true;
@@ -1285,7 +1307,7 @@
             }
 
             // Iridescent soap bubbles
-            if (o.material.name.includes('Bubble') || o.name.includes('Bubble')) {
+            if (o.material.isMeshPhysicalMaterial && (o.material.name.includes('Bubble') || o.name.includes('Bubble'))) {
               o.material.transmission = 0.98;
               o.material.ior = 1.333;
               o.material.iridescence = 1.0;
@@ -1311,6 +1333,43 @@
           }
         }
       });
+    }
+
+    function clearCustomSetup() {
+      for (const obj of state.customObjects) scene.remove(obj);
+      state.customObjects = [];
+      renderer.toneMappingExposure = 1.0;
+      scene.environmentIntensity = 1.0;
+    }
+
+    function adoptCameraFromGLB(gltf) {
+      if (!gltf.cameras || !gltf.cameras.length) return;
+      const source = gltf.cameras[0];
+      source.updateMatrixWorld(true);
+      source.getWorldPosition(camera.position);
+      source.getWorldQuaternion(camera.quaternion);
+      if (source.fov) camera.fov = source.fov;
+      camera.far = 1000;
+      camera.updateProjectionMatrix();
+
+      const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
+      const bounds = new THREE.Box3();
+      gltf.scene.traverse((o) => {
+        if (o.isMesh && !o.name.includes('Floor')) bounds.expandByObject(o);
+      });
+      const center = bounds.isEmpty()
+        ? new THREE.Vector3(0, 0.5, 0)
+        : bounds.getCenter(new THREE.Vector3());
+      const toCenter = center.clone().sub(camera.position);
+      const distance = Math.max(0.5, toCenter.dot(forward));
+      controls.target.copy(camera.position).addScaledVector(forward, distance);
+      controls.update();
+
+      state.adoptedCamera = {
+        position: camera.position.clone(),
+        target: controls.target.clone(),
+        fov: camera.fov
+      };
     }
 
     function disposeObject(root) {
@@ -1364,6 +1423,21 @@
         currentModel = gltf.scene;
         scene.add(currentModel);
         applyMaterialCalibrations(currentModel);
+        if (showcase.adoptCamera) adoptCameraFromGLB(gltf);
+
+        if (showcase.customSetup) {
+          const before = new Set(scene.children);
+          try {
+            const setup = new Function(
+              'THREE', 'scene', 'renderer', 'camera', 'controls', 'gltf',
+              showcase.customSetup
+            );
+            setup(THREE, scene, renderer, camera, controls, gltf);
+            state.customObjects = scene.children.filter((child) => !before.has(child));
+          } catch (error) {
+            console.warn('Scene custom setup failed:', error);
+          }
+        }
 
         if (gltf.animations && gltf.animations.length > 0) {
           mixer = new THREE.AnimationMixer(currentModel);
@@ -1402,10 +1476,19 @@
       topbarSize.textContent = showcase.size.opt;
 
       scene.background = new THREE.Color(showcase.background);
-      camera.fov = showcase.camera.fov;
+      state.adoptedCamera = null;
+      if (showcase.adoptCamera) {
+        camera.fov = 45;
+        camera.far = 1000;
+        camera.position.set(0, 4, 14);
+        controls.target.set(0, 0, 0);
+      } else {
+        camera.fov = showcase.camera.fov;
+        camera.far = 100;
+        camera.position.set(...showcase.camera.position);
+        controls.target.set(...showcase.camera.target);
+      }
       camera.updateProjectionMatrix();
-      camera.position.set(...showcase.camera.position);
-      controls.target.set(...showcase.camera.target);
       controls.update();
 
       setPlaying(false);
@@ -1414,6 +1497,7 @@
         : 0;
       updatePlaybackUI(showcase);
 
+      clearCustomSetup();
       disposeCurrentModel();
       applyViewMode();
       loadGLB(showcase);
@@ -1491,6 +1575,7 @@
         li.append(cat, text);
         inspectorBullets.append(li);
       }
+      changedSection.hidden = !showcase.bullets.length;
 
       renderComplexity(showcase);
 
@@ -1543,6 +1628,31 @@
       }
     }
 
+    function updateReferenceAvailability(showcase) {
+      const has = (key) => Boolean(key && showcase?.references?.[key]);
+
+      for (const btn of viewMenu.querySelectorAll('[data-view]')) {
+        const meta = VIEW_META[btn.dataset.view];
+        const available = !meta.ref || has(meta.ref);
+        btn.disabled = !available;
+        btn.setAttribute('aria-disabled', String(!available));
+        btn.title = available ? '' : 'Reference still not available for this scene';
+      }
+
+      for (const step of parityRail.querySelectorAll('[data-rail]')) {
+        const key = step.dataset.rail === 'oob'
+          ? 'oob'
+          : step.dataset.rail === 'pass1'
+            ? 'pass1'
+            : null;
+        const available = key === null || has(key);
+        step.disabled = !available;
+        step.setAttribute('aria-disabled', String(!available));
+        step.title = available ? '' : 'Reference still not available for this scene';
+        step.classList.toggle('is-unavailable', !available);
+      }
+    }
+
     function openLightbox() {
       const source = heatmapImg.getAttribute('src');
       if (!source) return;
@@ -1583,10 +1693,16 @@
     function resetCamera() {
       const showcase = state.manifest?.byId.get(state.activeId);
       if (!showcase) return;
-      camera.fov = showcase.camera.fov;
+      if (state.adoptedCamera) {
+        camera.fov = state.adoptedCamera.fov;
+        camera.position.copy(state.adoptedCamera.position);
+        controls.target.copy(state.adoptedCamera.target);
+      } else {
+        camera.fov = showcase.camera.fov;
+        camera.position.set(...showcase.camera.position);
+        controls.target.set(...showcase.camera.target);
+      }
       camera.updateProjectionMatrix();
-      camera.position.set(...showcase.camera.position);
-      controls.target.set(...showcase.camera.target);
       controls.update();
     }
 
@@ -1706,7 +1822,7 @@
 
       parityRail.addEventListener('click', (event) => {
         const step = event.target.closest('[data-rail]');
-        if (!step) return;
+        if (!step || step.disabled) return;
         const mode = step.dataset.rail === 'oob'
           ? 'split-oob'
           : step.dataset.rail === 'pass1'

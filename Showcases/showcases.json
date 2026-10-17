@@ -18,8 +18,8 @@
         "value": "Cycles AgX vs WebGL 60 FPS"
       },
       {
-        "label": "Benchmark labs",
-        "value": "14"
+        "label": "Scene catalogue",
+        "value": "18 scenes"
       }
     ]
   },
@@ -1237,6 +1237,307 @@
           "draw_calls": 14
         }
       }
+    },
+    {
+      "id": "cyber",
+      "label": "CYBER — Neon City",
+      "badge": "Production Scene · Dense Emissive Scene",
+      "adoptCamera": true,
+      "references": {
+        "cycles": "assets/cyber/cycles_reference.png",
+        "oob": null,
+        "pass1": null
+      },
+      "heatmap": "assets/cyber/heatmap.png",
+      "summary": "143 meshes, 20 punctual lights and 8 emissive clusters. The four text signs must become geometry, and the neon wash is emission, not a light — glTF has no way to bounce it.",
+      "challenge": "143 meshes, 20 punctual lights and 8 emissive clusters. The four text signs must become geometry, and the neon wash is emission, not a light — glTF has no way to bounce it.",
+      "constraints": [
+        "143 meshes",
+        "20 lights",
+        "emissive typography",
+        "shadow acne"
+      ],
+      "parity": {
+        "oob": "84.11%",
+        "pass1": "91.47%",
+        "pass2": "93.48%",
+        "mae": "6.52%"
+      },
+      "timing": {
+        "oob": "",
+        "pass1": "",
+        "pass2": "",
+        "iterations": ""
+      },
+      "size": {
+        "raw": "3.89 MB",
+        "opt": "355 KB",
+        "reduction": "90.87%"
+      },
+      "complexity": {
+        "raw": {
+          "objects": 129,
+          "triangles": 100612,
+          "materials": 15,
+          "textures": 0,
+          "lights": 20,
+          "bones": 0,
+          "morph_targets": 0,
+          "animations": 0,
+          "draw_calls": 129
+        },
+        "delivered": {
+          "objects": 129,
+          "triangles": 100444,
+          "materials": 15,
+          "textures": 0,
+          "lights": 20,
+          "bones": 0,
+          "morph_targets": 0,
+          "animations": 0,
+          "draw_calls": 129
+        }
+      },
+      "bullets": [
+        {
+          "cat": "Typography",
+          "text": "FONT objects converted to meshes so the four signs survive export."
+        },
+        {
+          "cat": "Materials",
+          "text": "Pure emission nodes rebuilt as Principled BSDF with emission strength."
+        },
+        {
+          "cat": "Lighting",
+          "text": "Bare meshes assigned PBR; fallback ambient/directional lights removed; shadow acne fixed."
+        },
+        {
+          "cat": "Calibration",
+          "text": "Physical hemisphere GI bounce and exposure 0.94 matched to the Cycles reference."
+        }
+      ],
+      "customSetup": "// 1. Physical GI Hemisphere: Sky cyan bounce from above, magenta floor bounce from below\nconst giHemi = new THREE.HemisphereLight(0x5599bb, 0x662266, 0.40);\nscene.add(giHemi);\n\n// 2. Lift ambient indirect bounce via environmentIntensity and calibrated exposure\nscene.environmentIntensity = 1.35;\nrenderer.toneMappingExposure = 0.94;\n\nscene.traverse((obj) => {\n  if (obj.isLight) {\n    const pName = obj.parent ? obj.parent.name : '';\n    if (obj.name === 'Point.005' || pName === 'Point.005' || obj.name === 'Point.007' || pName === 'Point.007') {\n      obj.intensity = 60.0;\n    }\n    if (obj.name === 'Light.001' || pName === 'Light.001') {\n      obj.intensity = 160.0;\n    }\n  }\n  // 3. White Billboard Panel: In Cycles, 200W emission blows out to pure white under AgX\n  if (obj.isMesh && obj.name === 'Plane.015') {\n    const mats = Array.isArray(obj.material) ? obj.material : [obj.material];\n    mats.forEach((m) => {\n      m.color.set(0xeeeeff);\n      m.emissiveIntensity = 8.0;\n    });\n  }\n});"
+    },
+    {
+      "id": "hologram",
+      "label": "3D Hologram",
+      "badge": "Production Scene · Emissive Gimbal",
+      "adoptCamera": true,
+      "references": {
+        "cycles": "assets/hologram/cycles_reference.png",
+        "oob": null,
+        "pass1": null
+      },
+      "heatmap": "assets/hologram/heatmap.png",
+      "summary": "Seven concentric gimbal rings and one glass sphere, with no authored light source. The stock exporter emits empty material stubs, and the emissive core has to light itself.",
+      "challenge": "Seven concentric gimbal rings and one glass sphere, with no authored light source. The stock exporter emits empty material stubs, and the emissive core has to light itself.",
+      "constraints": [
+        "7 gimbal rings",
+        "empty material stubs",
+        "emissive-only light"
+      ],
+      "parity": {
+        "oob": "—",
+        "pass1": "92.34%",
+        "pass2": "97.05%",
+        "mae": "2.95%"
+      },
+      "timing": {
+        "oob": "",
+        "pass1": "",
+        "pass2": "",
+        "iterations": ""
+      },
+      "size": {
+        "raw": "584.7 KB",
+        "opt": "166.1 KB",
+        "reduction": "71.6%"
+      },
+      "complexity": {
+        "raw": {
+          "objects": 12,
+          "triangles": 6298,
+          "materials": 8,
+          "textures": 0,
+          "lights": 4,
+          "bones": 0,
+          "morph_targets": 0,
+          "animations": 3,
+          "draw_calls": 20
+        },
+        "delivered": {
+          "objects": 12,
+          "triangles": 6298,
+          "materials": 8,
+          "textures": 0,
+          "lights": 4,
+          "bones": 0,
+          "morph_targets": 0,
+          "animations": 3,
+          "draw_calls": 20
+        }
+      },
+      "bullets": [
+        {
+          "cat": "Background",
+          "text": "AgX background calibrated from #0a0c12 to #1a1a1b."
+        },
+        {
+          "cat": "Shadows",
+          "text": "shadow.normalBias tuned to remove polygon acne on the rings."
+        },
+        {
+          "cat": "Emission",
+          "text": "Holographic torus cores boosted so the emissive geometry reads as the light source."
+        }
+      ],
+      "customSetup": "// Eliminate self-shadowing acne on holographic platform\n  scene.traverse((o) => {\n    if (o.isLight && o.shadow) {\n      o.shadow.bias = -0.0003;\n      o.shadow.normalBias = 0.035;\n    }\n    // Boost cyan holographic ring emission core\n    if (o.isMesh && o.material && (o.name.includes('Torus') || o.name.includes('Circle'))) {\n      const mats = Array.isArray(o.material) ? o.material : [o.material];\n      mats.forEach((m) => {\n        if (m.emissive) {\n          m.emissiveIntensity = Math.max(m.emissiveIntensity || 1.0, 2.2);\n        }\n      });\n    }\n  });"
+    },
+    {
+      "id": "mustang",
+      "label": "Mustang Fastback",
+      "badge": "Production Scene · Automotive Studio",
+      "adoptCamera": true,
+      "references": {
+        "cycles": "assets/mustang/cycles_reference.png",
+        "oob": null,
+        "pass1": null
+      },
+      "heatmap": "assets/mustang/heatmap.png",
+      "summary": "Automotive clearcoat over metallic flake, lit by seven studio softboxes. Area lights export as hard spots, and the clearcoat response has no direct glTF equivalent.",
+      "challenge": "Automotive clearcoat over metallic flake, lit by seven studio softboxes. Area lights export as hard spots, and the clearcoat response has no direct glTF equivalent.",
+      "constraints": [
+        "clearcoat paint",
+        "7 softboxes",
+        "area-light falloff"
+      ],
+      "parity": {
+        "oob": "—",
+        "pass1": "88.85%",
+        "pass2": "93.93%",
+        "mae": "6.07%"
+      },
+      "timing": {
+        "oob": "",
+        "pass1": "",
+        "pass2": "",
+        "iterations": ""
+      },
+      "size": {
+        "raw": "141.2 MB",
+        "opt": "2.67 MB",
+        "reduction": "98.11%"
+      },
+      "complexity": {
+        "raw": {
+          "objects": 24,
+          "triangles": 1465305,
+          "materials": 19,
+          "textures": 0,
+          "lights": 1,
+          "bones": 0,
+          "morph_targets": 0,
+          "animations": 0,
+          "draw_calls": 36
+        },
+        "delivered": {
+          "objects": 24,
+          "triangles": 1453125,
+          "materials": 19,
+          "textures": 0,
+          "lights": 1,
+          "bones": 0,
+          "morph_targets": 0,
+          "animations": 0,
+          "draw_calls": 36
+        }
+      },
+      "bullets": [
+        {
+          "cat": "Lighting",
+          "text": "Seven studio softboxes replaced with directional proxies; area-light falloff approximated."
+        },
+        {
+          "cat": "Paint",
+          "text": "MeshPhysicalMaterial clearcoat over metallic flake."
+        },
+        {
+          "cat": "Backdrop",
+          "text": "Dark maroon AgX fill matched to the infinity drape."
+        }
+      ],
+      "customSetup": "// Turn off tiny Point light\nscene.traverse(o => {\n  if (o.isLight && o.name === 'Point') o.intensity = 0;\n});\n\n// Overhead softbox\nconst top = new THREE.DirectionalLight(0xfff0ea, 4.0);\ntop.position.set(2, 20, 0);\nscene.add(top);\n\n// Key softbox from left-rear\nconst key = new THREE.DirectionalLight(0xffeedd, 5.5);\nkey.position.set(-15, 12, -12);\nkey.castShadow = true;\nkey.shadow.bias = -0.0003;\nkey.shadow.normalBias = 0.035;\nscene.add(key);\n\n// Right front rim softbox\nconst rim = new THREE.DirectionalLight(0xffffff, 3.4);\nrim.position.set(12, 10, 10);\nscene.add(rim);\n\n// Ambient floor & backdrop fill matching Cycles AgX dark maroon [21, 5, 11]\nconst fill = new THREE.AmbientLight(0x2d0b13, 0.95);\nscene.add(fill);\n\n// Convert car body materials to automotive clearcoat\nscene.traverse(o => {\n  if (o.isMesh) {\n    if (o.name.includes('Background') || o.name.includes('Drape')) {\n      o.castShadow = false;\n      o.receiveShadow = false;\n    }\n    if (o.material) {\n      const mats = Array.isArray(o.material) ? o.material : [o.material];\n      mats.forEach((m, idx) => {\n        if (m.name === 'Gloss Red') {\n          const phys = new THREE.MeshPhysicalMaterial({\n            color: m.color,\n            map: m.map,\n            roughness: 0.28,\n            metalness: 0.12,\n            clearcoat: 1.0,\n            clearcoatRoughness: 0.05,\n            side: m.side\n          });\n          if (Array.isArray(o.material)) o.material[idx] = phys;\n          else o.material = phys;\n        }\n      });\n    }\n  }\n});"
+    },
+    {
+      "id": "stormwater",
+      "label": "Storm Water Passage",
+      "badge": "Production Scene · Architectural Tunnel",
+      "adoptCamera": true,
+      "references": {
+        "cycles": "assets/stormwater/cycles_reference.png",
+        "oob": null,
+        "pass1": null
+      },
+      "heatmap": "assets/stormwater/heatmap.png",
+      "summary": "A concrete tunnel with daylight shafts: 52 meshes, 5 lights and 24 error clusters. The hard parts are area-light falloff and the sky bounce inside the cavities.",
+      "challenge": "A concrete tunnel with daylight shafts: 52 meshes, 5 lights and 24 error clusters. The hard parts are area-light falloff and the sky bounce inside the cavities.",
+      "constraints": [
+        "52 meshes",
+        "daylight shafts",
+        "cavity bounce"
+      ],
+      "parity": {
+        "oob": "—",
+        "pass1": "89.35%",
+        "pass2": "89.47%",
+        "mae": "10.53%"
+      },
+      "timing": {
+        "oob": "",
+        "pass1": "",
+        "pass2": "",
+        "iterations": ""
+      },
+      "size": {
+        "raw": "62.3 MB",
+        "opt": "10.2 MB",
+        "reduction": "83.6%"
+      },
+      "complexity": {
+        "raw": {
+          "objects": 1402,
+          "triangles": 200278,
+          "materials": 21,
+          "textures": 21,
+          "lights": 5,
+          "bones": 0,
+          "morph_targets": 0,
+          "animations": 0,
+          "draw_calls": 1402
+        },
+        "delivered": {
+          "objects": 1402,
+          "triangles": 197112,
+          "materials": 21,
+          "textures": 21,
+          "lights": 5,
+          "bones": 0,
+          "morph_targets": 0,
+          "animations": 0,
+          "draw_calls": 1402
+        }
+      },
+      "bullets": [
+        {
+          "cat": "Lights",
+          "text": "Spot angle widened to 170 degrees and shadow normalBias calibrated."
+        },
+        {
+          "cat": "GI",
+          "text": "Hemisphere fill added to recover the sky bounce inside the tunnel."
+        }
+      ],
+      "customSetup": "// 1. Soften Area light shafts entering the stormwater drain\n  scene.traverse((o) => {\n    if (o.isSpotLight) {\n      o.angle = Math.min(Math.PI * 0.46, o.angle * 1.35);\n      o.penumbra = 0.85;\n      if (o.shadow) {\n        o.shadow.bias = -0.0003;\n        o.shadow.normalBias = 0.035;\n      }\n    }\n    if (o.isPointLight) {\n      // Warm maintenance worklights\n      o.intensity *= 2.0;\n      o.distance = 15.0;\n    }\n  });\n\n  // 2. Concrete tunnel multi-bounce diffuse GI\n  const hemi = new THREE.HemisphereLight(0x88aacc, 0x33261a, 0.45);\n  scene.add(hemi);\n\n  const ambient = new THREE.AmbientLight(0x202830, 0.3);\n  scene.add(ambient);"
     }
   ]
 }
